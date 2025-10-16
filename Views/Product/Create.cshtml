@@ -1,0 +1,145 @@
+﻿@model EBookStore.Models.CreateModel.ProductCreateModel
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>            
+            <div class="form-group">
+                <label class="control-label">Category</label>
+                <select asp-for="CategoryID" class ="form-control" asp-items="ViewBag.CategoryID">
+                    <option value="0">--Select Category--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Author</label>
+                <select asp-for="AuthorID" class ="form-control" asp-items="ViewBag.AuthorID">
+                    <option value="0">--Select Author--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Publisher</label>
+                <select asp-for="PublisherID" class ="form-control" asp-items="ViewBag.PublisherID">
+                    <option value="0">--Select Publisher--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Cover</label>
+                <select asp-for="CoverID" class ="form-control" asp-items="ViewBag.CoverID">
+                    <option value="0">--Select Cover--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Discount" class="control-label"></label>
+                <input asp-for="Discount" class="form-control" />
+                <span asp-validation-for="Discount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Page Quantity</label>
+                <input asp-for="PageQuantity" class="form-control" />
+                <span asp-validation-for="PageQuantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Topic" class="control-label"></label>
+                <input asp-for="Topic" class="form-control" />
+                <span asp-validation-for="Topic" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Featured" /> @Html.DisplayNameFor(model => model.Featured)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="New" /> @Html.DisplayNameFor(model => model.New)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="PreOrderable" /> @Html.DisplayNameFor(model => model.PreOrderable)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="InStock" /> @Html.DisplayNameFor(model => model.InStock)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="BestSeller" /> @Html.DisplayNameFor(model => model.BestSeller)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="SlideShow" /> @Html.DisplayNameFor(model => model.SlideShow)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label><b><i>Choose an image:</i></b></label>
+                <input type="file" asp-for="Image" id="selectedImage" accept="image/*" />
+            </div>
+
+            <div class="col-md-6" id="preview"></div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        //Preview Image
+        $(document).ready(function () {
+            $("#selectedImage").change(function (event) {
+                var input = event.target;
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        // Display the image in the preview div
+                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid" style="max-height:100px;" />');
+                    }
+
+                    reader.readAsDataURL(input.files[0]); // Convert file to base64 URL
+                } else {
+                    $("#preview").html(''); // Clear preview if no file
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+﻿@model EBookStore.Models.Product
+@{
+    ViewData["Title"] = "EditImage";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="p-4">
+    <h1>EditImage</h1>
+
+    <!-- Details -->
+    <div class="card mb-4 shadow-lg rounded-4 border-0">
+        <div class="card-header d-flex align-items-center rounded-top-4" style="background: linear-gradient(135deg, #4e73df, #1cc88a);">
+            <i class="bi bi-info-circle me-2 fs-4"></i>
+            <h5 class="mb-0">Detail</h5>
+        </div>
+        <div class="card-body row">
+            <div class="col-md-6">
+                <p><span class="fw-semibold">Name: </span>@Model.Name</p>
+                <p><span class="fw-semibold">Price: </span>@Model.Price</p>
+                <p><span class="fw-semibold">Description: </span>@Model.Description</p>
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="ms-auto me-3">
+                    @if (Model.Image != null && Model.Image.Length > 0)
+                    {
+                        <img src="@Model.Image" class="img-fluid" style="max-height:100px;" alt="Image" />
+                    }
+                    else
+                    {
+                        <img src="\Images\NoImage.jpg" class="img-fluid" style="max-height:100px;" alt="No Image" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="EditImage" enctype="multipart/form-data">
+        <input name="id" value="@Model.ID" hidden readonly />
+        <div class="row my-4">
+            <div class="col-md-6 d-flex align-items-center">
+                <label><b><i>Choose an image:</i></b></label> &nbsp;
+                <input type="file" name="image" id="selectedImage" accept="image/*" />
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="ms-auto me-3" id="preview"></div>
+            </div>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-end">
+            <a asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 shadow-sm me-2">
+                <i class="bi bi-arrow-left-circle"></i> Back
+            </a>
+            <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
+                <i class="bi bi-check-circle"></i> Update Image
+            </button>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        //Preview Image
+        $(document).ready(function () {
+            $("#selectedImage").change(function (event) {
+                var input = event.target;
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        // Display the image in the preview div
+                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid" style="max-height:100px;" />');
+                    }
+
+                    reader.readAsDataURL(input.files[0]); // Convert file to base64 URL
+                } else {
+                    $("#preview").html(''); // Clear preview if no file
+                }
+            });
+        });
+    </script>
+}

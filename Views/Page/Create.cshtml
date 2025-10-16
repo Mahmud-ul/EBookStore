@@ -1,0 +1,72 @@
+﻿@model EBookStore.Models.CreateModel.PageCreateModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Page</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ProductID" class="control-label"></label>
+                <select asp-for="ProductID" class ="form-control" asp-items="ViewBag.ProductID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="PageNumber" class="control-label"></label>
+                <input asp-for="PageNumber" class="form-control" />
+                <span asp-validation-for="PageNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label><b><i>Choose an image:</i></b></label>
+                <input type="file" asp-for="Image" id="selectedImage" accept="image/*" />
+            </div>
+
+            <div class="col-md-6" id="preview"></div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        //Preview Image
+        $(document).ready(function () {
+            $("#selectedImage").change(function (event) {
+                var input = event.target;
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        // Display the image in the preview div
+                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid" style="max-height:100px;" />');
+                    }
+
+                    reader.readAsDataURL(input.files[0]); // Convert file to base64 URL
+                } else {
+                    $("#preview").html(''); // Clear preview if no file
+                }
+            });
+        });
+    </script>
+}
