@@ -1,8 +1,10 @@
 ﻿using EBookStore.Models;
 using EBookStore.Models.CreateModel;
 using EBookStore.Models.Database;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -64,7 +66,7 @@ namespace EBookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Image,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] ProductCreateModel product)
+        public async Task<IActionResult> Create([Bind("ID,Name,Image,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,Popular,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] ProductCreateModel product)
         {
             try
             {
@@ -117,6 +119,7 @@ namespace EBookStore.Controllers
                         Topic = product.Topic,
                         Description = product.Description,
                         Featured = product.Featured,
+                        Popular = product.Popular,
                         New = product.New,
                         PreOrderable = product.PreOrderable,
                         InStock = product.InStock,
@@ -166,7 +169,7 @@ namespace EBookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,Popular,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] Product product)
         {
             if (id != product.ID)
             {
@@ -374,26 +377,207 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            try
             {
-                string oldPartialPath = product.Image ?? string.Empty;
-                string oldFileName = oldPartialPath.Split('/').Last();
-                string oldFullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Image/Product/") + oldFileName;
-                if (System.IO.File.Exists(oldFullPath))
+                var product = await _context.Products.FindAsync(id);
+                if (product != null)
                 {
-                    System.IO.File.Delete(oldFullPath);
+                    bool pages = await _context.Pages.Where(w => w.ProductID == id).AnyAsync();
+                    if (pages)
+                    {
+                        TempData["Error"] = "Pages of this book exists!";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    string oldPartialPath = product.Image ?? string.Empty;
+                    string oldFileName = oldPartialPath.Split('/').Last();
+                    string oldFullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Image/Product/") + oldFileName;
+                    if (System.IO.File.Exists(oldFullPath))
+                    {
+                        System.IO.File.Delete(oldFullPath);
+                    }
+
+                    _context.Products.Remove(product);
                 }
-
-                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();                
             }
-
-            await _context.SaveChangesAsync();
+            catch(Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.ID == id);
+        }
+
+        public IActionResult AddToCart(int id)
+        {
+            int? userID = HttpContext.Session.GetInt32("UserID");
+
+            if (userID == null || userID == 0)
+            {
+                // Return JSON response indicating login is required
+                return Json(new { success = false, message = "Please log in to add items to your cart." });
+            }
+
+            bool exist = _context.Carts.Where(w => w.UserID == userID && w.ProductID == id).Any();
+
+            if(exist)
+                return Json(new { success = false, message = "Already added to the cart!" });
+
+            Cart cart = new Cart
+            {
+                ProductID = id,
+                UserID = userID ?? 0,
+                Quantity = 1
+            };
+            _context.Add(cart);
+            int save = _context.SaveChanges();
+
+            int totalCart = _context.Carts.Where(w => w.UserID == userID).Sum(s => ((s.Product != null ? (s.Product.Price-s.Product.Discount) : 0) * s.Quantity)) ?? 0;
+            HttpContext.Session.SetInt32("Cart", totalCart);
+
+            if (save>0)
+            {
+                return Json(new { success = true, message = "Item added to cart!", totalCart });
+            }
+            else
+                return Json(new { message = "Failed to save"});            
+        }
+
+        public async Task<IActionResult> ProductList(string search, int? categoryID, int? authorID, int? publisherID, int? coverID, 
+            int? minPrice, int? maxPrice, bool? featured, bool? popular, bool? preOrder, bool? IsNew, bool? bestSeller, bool? inStock, 
+            bool? discount, int? page) // 🆕 added for pagination
+        {
+            IQueryable<Product> query = _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Author)
+                .Include(p => p.Publisher)
+                .Include(p => p.Cover)
+                .Where(p => p.Status);
+
+            // 🔍 Apply filters (same as before)
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p => EF.Functions.Like(p.Name, $"%{search}%"));
+                ViewBag.Search = search;
+            }
+            if (categoryID.HasValue)
+            {
+                query = query.Where(p => p.CategoryID == categoryID);
+                ViewBag.CategoryID = categoryID;
+            }
+            if (authorID.HasValue)
+            {
+                query = query.Where(p => p.AuthorID == authorID);
+                ViewBag.AuthorID = authorID;
+            }
+            if (publisherID.HasValue)
+            {
+                query = query.Where(p => p.PublisherID == publisherID);
+                ViewBag.PublisherID = publisherID;
+            }
+            if (coverID.HasValue)
+            {
+                query = query.Where(p => p.CoverID == coverID);
+                ViewBag.CoverID = coverID;
+            }
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice);
+                ViewBag.MinPrice = minPrice;
+            }
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice);
+                ViewBag.MaxPrice = maxPrice;
+            }
+            if (featured == true)
+            {
+                query = query.Where(p => p.Featured);
+                ViewBag.Featured = featured;
+            }
+            if (popular == true)
+            {
+                query = query.Where(p => p.Popular);
+                ViewBag.Popular = popular;
+            }
+            if (preOrder == true)
+            {
+                query = query.Where(p => p.PreOrderable);
+                ViewBag.PreOrderable = preOrder;
+            }
+            if (IsNew == true)
+            {
+                query = query.Where(p => p.New);
+                ViewBag.New = IsNew;
+            }
+            if (bestSeller == true)
+            {
+                query = query.Where(p => p.BestSeller);
+                ViewBag.BestSeller = bestSeller;
+            }
+            if (inStock == true)
+            {
+                query = query.Where(p => p.InStock);
+                ViewBag.InStock = inStock;
+            }
+            if (discount == true)
+            {
+                query = query.Where(p => p.Discount.HasValue && p.Discount > 0);
+                ViewBag.Discount = discount;
+            }
+
+            // 🆕 Pagination setup
+            int pageSize = 9; // Number of products per page
+            int pageNumber = page ?? 1;
+            int totalProducts = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalProducts / (double)pageSize);
+
+            // 🧮 Apply skip/take for pagination
+            var products = await query
+                .OrderByDescending(p => p.ID)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Dropdown data
+            ViewBag.Categories = await _context.Categories
+                .Where(c => c.Status && c.Parent != null && c.Parent.Name == "Book")
+                .ToListAsync();
+
+            ViewBag.Authors = await _context.Authors.Where(a => a.Status).ToListAsync();
+            ViewBag.Publishers = await _context.Publishers.Where(p => p.Status).ToListAsync();
+            ViewBag.Covers = await _context.Covers.Where(c => c.Status).ToListAsync();
+
+            // 🆕 Send pagination info to the view
+            ViewBag.Page = pageNumber;
+            ViewBag.TotalPages = totalPages;
+
+            // Return full view (works for normal and AJAX loads)
+            return View(products);
+        }
+
+        public async Task<IActionResult> ProductDetails(int id)
+        {
+            Product? product = await _context.Products.Where(w => w.ID == id)
+                .Include(p => p.Category)
+                .Include(p => p.Author)
+                .Include(p => p.Publisher)
+                .Include(p => p.Cover).FirstOrDefaultAsync();
+
+            if(product == null)
+            {
+                TempData["Error"] = "Product not Found!";
+                return RedirectToAction("Index", "Home");
+            }
+
+            IEnumerable<Page> pages = await _context.Pages.Where(w => w.ProductID == id && w.Status).ToListAsync();
+            ViewBag.Pages = pages;
+
+            return View(product);
         }
     }
 }

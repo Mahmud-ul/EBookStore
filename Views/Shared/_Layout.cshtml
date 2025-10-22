@@ -1,29 +1,116 @@
-﻿<!DOCTYPE html>
+﻿﻿@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<title>BookSaw - Free Book Store HTML CSS Template</title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="format-detection" content="telephone=no">
-	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="author" content="">
 	<meta name="keywords" content="">
 	<meta name="description" content="">
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-		  integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+		  integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" asp-append-version="true">
 
-	<link rel="stylesheet" type="text/css" href="~/css/normalize.css">
-	<link rel="stylesheet" type="text/css" href="~/css/icomoon.css">
-	<link rel="stylesheet" type="text/css" href="~/css/vendor.css">
-	<link rel="stylesheet" type="text/css" href="~/css/style.css">
+	<link rel="stylesheet" type="text/css" href="~/css/normalize.css" asp-append-version="true">
+	<link rel="stylesheet" type="text/css" href="~/icomoon/icomoon.css" asp-append-version="true">
+	<link rel="stylesheet" type="text/css" href="~/css/vendor.css" asp-append-version="true">
+	<link rel="stylesheet" type="text/css" href="~/style.css" asp-append-version="true">
+	<style>
+		/* Enable hover-open for dropdowns on desktop (>=992px).
+				   Click still works on mobile. */
+		@@media (min-width: 992px) {
+			/* show menu on parent hover */
+			.navbar .dropdown:hover > .dropdown-menu {
+				display: block;
+				margin-top: 0; /* match your template if needed */
+			}
+			/* ensure parent gets Bootstrap `.show` styles if template relies on it */
+			.navbar .dropdown:hover > .dropdown-toggle {
+				/* no-op but keeps specificity; sometimes templates add styles based on .show */
+			}
+		}
 
+		/* Ensure dropdown is positioned correctly */
+		.user-dropdown {
+			position: relative;
+			display: inline-block;
+		}
+
+		.user-dropdown .dropdown-menu {
+			display: none; /* hidden by default */
+			position: absolute;
+			right: 20%;
+			top: 95%;
+			background-color: #e9e6e6;
+			border-radius: 20px;
+			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+			padding: 0.3rem;
+			min-width: 140px;
+			z-index: 1050 !important;
+		}
+
+		/* Show dropdown on hover */
+		.user-dropdown:hover .dropdown-menu {
+			display: block;
+		}
+
+		/* Optional small triangle */
+		.user-dropdown .dropdown-menu::before {
+			content: "";
+			position: absolute;
+			top: -6px;
+			right: 16px;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-bottom: 6px solid #e6f3ee;
+		}
+
+		/* Logout link styling */
+		.user-dropdown .dropdown-menu .btn-accent-arrow {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.3rem;
+			width: 100%;
+			padding: 0.15rem 0.15rem;
+			border-radius: 50px;
+			background-color: transparent;
+			color: #dc3545;
+			text-align: center;
+			font-size: 0.875rem;
+			transition: all 0.2s ease;
+			text-decoration: none;
+		}
+
+		/* Hover effect */
+		.user-dropdown .dropdown-menu .btn-accent-arrow:hover {
+			background: linear-gradient(135deg, #FF6B6B, #FF914D);
+			color: #fff;
+		}
+
+		.hoverItem:hover {
+			color: #d2a679;
+		}
+		@RenderSection("Styles", required: false)
+	</style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
-
+	<!-- Active Menu -->
+	@{
+		var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+		var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+	}
+	@{
+		var user = Context.Session.GetString("UserName");
+		var userID = Context.Session.GetInt32("UserID") ?? 0;
+		var userType = Context.Session.GetString("UserType");
+		var Cart = Context.Session.GetInt32("Cart") ?? 0;
+	}
 	<div id="header-wrap">
 
 		<div class="top-content">
@@ -49,32 +136,50 @@
 					</div>
 					<div class="col-md-6">
 						<div class="right-element">
-							<a href="#" class="user-account for-buy">
-								<i class="icon icon-user"></i><span>Account</span>
-							</a>
-							<a href="#" class="cart for-buy">
-								<i class="icon icon-clipboard"></i><span>
-									Cart:(0
-									$)
+							@if (string.IsNullOrEmpty(user))
+							{
+								
+								<a asp-action="Login" asp-controller="Account" class="user-account for-buy hoverItem">
+									<i class="icon icon-user"></i><span>Login</span>
+								</a>
+							}
+							else
+							{
+								if (userType == "Admin" || userType == "SuperAdmin")
+								{
+									<a asp-action="Index" asp-controller="Admin" class="user-account for-buy hoverItem">
+										<span>Admin-Panel</span>
+									</a>
+								}
+								<div class="user-dropdown">
+									<a href="#" class="user-account for-buy hoverItem">
+										<i class="icon icon-user"></i><span>Hello, @user</span>
+									</a>
+									<div class="dropdown-menu">
+										<a asp-action="Logout" asp-controller="Account" class="btn-accent-arrow">
+											<b>Logout</b> <i class="icon icon-ns-arrow-right"></i>
+										</a>
+									</div>
+								</div>
+							}
+							<a href="#" class="cart for-buy hoverItem">
+								<i class="icon icon-clipboard"></i><span id="cart">
+									Cart:(BDT @Cart)
 								</span>
 							</a>
-
 							<div class="action-menu">
-
 								<div class="search-bar">
 									<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
 										<i class="icon icon-search"></i>
 									</a>
-									<form role="search" method="get" class="search-box">
+									<form role="search" method="get" class="search-box" asp-action="ProductList" asp-controller="Product">
 										<input class="search-field text search-input" placeholder="Search"
-											   type="search">
+											   type="search" name="search">
 									</form>
 								</div>
 							</div>
-
 						</div><!--top-right-->
 					</div>
-
 				</div>
 			</div>
 		</div><!--top-content-->
@@ -85,7 +190,7 @@
 
 					<div class="col-md-2">
 						<div class="main-logo">
-							<a href="index.html"><img src="images/main-logo.png" alt="logo"></a>
+							<a href="index.html"><img src="~/images/main-logo.png" alt="logo"></a>
 						</div>
 
 					</div>
@@ -96,27 +201,22 @@
 							<div class="main-menu stellarnav">
 								<ul class="menu-list">
 									<li class="menu-item active"><a href="#home">Home</a></li>
+									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" class="nav-link">Books</a></li>
 									<li class="menu-item has-sub">
-										<a href="#pages" class="nav-link">Pages</a>
-
+										<a href="#pages" class="nav-link">Category</a>
 										<ul>
-											<li class="active"><a href="index.html">Home</a></li>
-											<li><a href="index.html">About</a></li>
-											<li><a href="index.html">Styles</a></li>
-											<li><a href="index.html">Blog</a></li>
-											<li><a href="index.html">Post Single</a></li>
-											<li><a href="index.html">Our Store</a></li>
-											<li><a href="index.html">Product Single</a></li>
-											<li><a href="index.html">Contact</a></li>
-											<li><a href="index.html">Thank You</a></li>
+											@await Component.InvokeAsync("Menu", new {type = "Category"})
 										</ul>
-
 									</li>
-									<li class="menu-item"><a href="#featured-books" class="nav-link">Featured</a></li>
-									<li class="menu-item"><a href="#popular-books" class="nav-link">Popular</a></li>
-									<li class="menu-item"><a href="#special-offer" class="nav-link">Offer</a></li>
-									<li class="menu-item"><a href="#latest-blog" class="nav-link">Articles</a></li>
-									<li class="menu-item"><a href="#download-app" class="nav-link">Download App</a></li>
+									<li class="menu-item has-sub">
+										<a href="#pages" class="nav-link">Author</a>
+										<ul>
+											@await Component.InvokeAsync("Menu", new { type = "Author" })
+										</ul>
+									</li>
+									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" asp-route-IsNew="True" class="nav-link">New</a></li>									
+									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" asp-route-discount="True" class="nav-link">Offer</a></li>
+									<li class="menu-item"><a asp-action="OrderList" asp-controller="Order" class="nav-link">Orders</a></li>
 								</ul>
 
 								<div class="hamburger">
@@ -262,30 +362,19 @@
 					<div class="copyright">
 						<div class="row">
 
-							<div class="col-md-6">
+							<div class="col-md-12">
 								<p>
-									© 2022 All rights reserved. Free HTML Template by <a href="https://www.templatesjungle.com/" target="_blank">TemplatesJungle</a>
+									<span>&copy; 2025 - <i>Developed by</i></span>
+									<a class="footer-link ms-1" href="https://www.linkedin.com/in/mahmudul-hasan-bari" target="_blank" style="text-decoration:none;">
+										<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-linkedin me-1" viewBox="0 0 16 16">
+											<path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401m-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4" />
+										</svg>
+										<span class="fw-semibold">Mahmudul Hasan Bari</span>
+									</a>
 								</p>
 							</div>
 
-							<div class="col-md-6">
-								<div class="social-links align-right">
-									<ul>
-										<li>
-											<a href="#"><i class="icon icon-facebook"></i></a>
-										</li>
-										<li>
-											<a href="#"><i class="icon icon-twitter"></i></a>
-										</li>
-										<li>
-											<a href="#"><i class="icon icon-youtube-play"></i></a>
-										</li>
-										<li>
-											<a href="#"><i class="icon icon-behance-square"></i></a>
-										</li>
-									</ul>
-								</div>
-							</div>
+							
 
 						</div>
 					</div><!--grid-->
@@ -294,13 +383,19 @@
 			</div>
 		</div>
 	</div>
+	<!-- 1. jQuery FIRST -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-	<script src="js/jquery-1.11.0.min.js"></script>
+	<!-- 2. Bootstrap -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
 			integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
 			crossorigin="anonymous"></script>
-	<script src="js/plugins.js"></script>
-	<script src="js/script.js"></script>
+
+	<!-- 3. Plugins (contains Slick, AOS, etc.) -->
+	<script src="~/js/plugins.js"></script>
+
+	<!-- 4. Your custom script (THIS FILE) -->
+	<script src="~/js/script.js"></script>
 	@RenderSection("Scripts", required: false)
 </body>
 

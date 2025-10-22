@@ -22,11 +22,12 @@ namespace EBookStore.Controllers
         // GET: Cart
         public async Task<IActionResult> Index()
         {
-            var connectionString = _context.Carts.Include(c => c.Product).Include(c => c.User);
-            return View(await connectionString.ToListAsync());
+            var carts = _context.Carts.Include(c => c.Product).Include(c => c.User);
+            return View(await carts.ToListAsync());
         }
 
-        // GET: Cart/Details/5
+        // GET: Cart/Details?userID=5&productID=10
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -37,7 +38,8 @@ namespace EBookStore.Controllers
             var cart = await _context.Carts
                 .Include(c => c.Product)
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.UserID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (cart == null)
             {
                 return NotFound();
@@ -55,11 +57,9 @@ namespace EBookStore.Controllers
         }
 
         // POST: Cart/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,ProductID,UserID,Quantity")] Cart cart)
+        public async Task<IActionResult> Create([Bind("ProductID,UserID,Quantity")] Cart cart)
         {
             if (ModelState.IsValid)
             {
@@ -72,7 +72,7 @@ namespace EBookStore.Controllers
             return View(cart);
         }
 
-        // GET: Cart/Edit/5
+        // GET: Cart/Edit?userID=5&productID=10
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -80,24 +80,25 @@ namespace EBookStore.Controllers
                 return NotFound();
             }
 
-            var cart = await _context.Carts.FindAsync(id);
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (cart == null)
             {
                 return NotFound();
             }
+
             ViewData["ProductID"] = new SelectList(_context.Products, "ID", "Name", cart.ProductID);
             ViewData["UserID"] = new SelectList(_context.Users, "ID", "Email", cart.UserID);
             return View(cart);
         }
 
-        // POST: Cart/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Cart/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,ProductID,UserID,Quantity")] Cart cart)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductID,UserID,Quantity")] Cart cart)
         {
-            if (id != cart.UserID)
+            if (id != cart.ID)
             {
                 return NotFound();
             }
@@ -111,7 +112,7 @@ namespace EBookStore.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CartExists(cart.UserID))
+                    if (!CartExists(cart.ID))
                     {
                         return NotFound();
                     }
@@ -127,7 +128,7 @@ namespace EBookStore.Controllers
             return View(cart);
         }
 
-        // GET: Cart/Delete/5
+        // GET: Cart/Delete?userID=5&productID=10
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -138,7 +139,8 @@ namespace EBookStore.Controllers
             var cart = await _context.Carts
                 .Include(c => c.Product)
                 .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.UserID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (cart == null)
             {
                 return NotFound();
@@ -147,24 +149,26 @@ namespace EBookStore.Controllers
             return View(cart);
         }
 
-        // POST: Cart/Delete/5
+        // POST: Cart/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cart = await _context.Carts.FindAsync(id);
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (cart != null)
             {
                 _context.Carts.Remove(cart);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CartExists(int id)
         {
-            return _context.Carts.Any(e => e.UserID == id);
+            return _context.Carts.Any(e => e.ID == id);
         }
     }
 }

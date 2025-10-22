@@ -1,0 +1,10 @@
+﻿@model IEnumerable<EBookStore.Models.Author>
+
+@foreach (var item in Model)
+{
+    <li class="@(ViewBag.AuthorID == item.ID ? "active" : "")">
+        <a asp-action="ProductList" asp-controller="Product"
+           asp-route-authorID="@item.ID"
+           class="nav-link">@item.Name</a>
+    </li>
+}

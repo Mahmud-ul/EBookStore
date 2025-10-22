@@ -1,0 +1,640 @@
+﻿@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Products";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-4">
+    <div class="row">
+        <!-- 🧭 Filters Sidebar -->
+        <div class="col-md-3">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header" style="background: linear-gradient(45deg, #007bff, #00c6ff);">
+                    <i class="bi bi-funnel-fill me-1"></i> <b>Filters</b>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm">
+                        <!-- Checkboxes -->
+                        <div class="form-check mb-2 col-md-6">
+                            <input type="checkbox" name="featured" id="featured" value="true" class="form-check-input" @((bool?)ViewBag.Featured == true ? "checked" : "")>
+                            <label for="featured" class="form-check-label">Featured</label>
+                        </div>
+                        <div class="form-check mb-2 col-md-6">
+                            <input type="checkbox" name="popular" id="popular" value="true" class="form-check-input" @((bool?)ViewBag.Popular == true ? "checked" : "")>
+                            <label for="popular" class="form-check-label">Popular</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="preOrder" id="preOrder" value="true" class="form-check-input" @((bool?)ViewBag.PreOrderable == true ? "checked" : "")>
+                            <label for="preOrder" class="form-check-label">PreOrderable</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="IsNew" id="newProducts" value="true" class="form-check-input" @((bool?)ViewBag.New == true ? "checked" : "")>
+                            <label for="newProducts" class="form-check-label">New</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="bestSeller" id="bestSeller" value="true" class="form-check-input" @((bool?)ViewBag.BestSeller == true ? "checked" : "")>
+                            <label for="bestSeller" class="form-check-label">Best Seller</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" name="inStock" id="inStock" value="true" class="form-check-input" @((bool?)ViewBag.InStock == true ? "checked" : "")>
+                            <label for="inStock" class="form-check-label">In Stock</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="discount" id="discount" value="true" class="form-check-input" @((bool?)ViewBag.Discount == true ? "checked" : "")>
+                            <label for="discount" class="form-check-label">Discount</label>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" id="search" name="search" class="form-control shadow-sm" value="@ViewBag.Search">
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="categoryID" class="form-select shadow-sm">
+                                <option value="">All Categories</option>
+                                @foreach (var cat in ViewBag.Categories)
+                                {
+                                    if (ViewBag.CategoryID == cat.ID)
+                                    {
+                                        <option value="@cat.ID" selected>@cat.Name</option>
+                                        continue;
+                                    }
+                                    <option value="@cat.ID">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Author -->
+                        <div class="mb-3">
+                            <label class="form-label">Author</label>
+                            <select name="authorID" class="form-select shadow-sm">
+                                <option value="">All Authors</option>
+                                @foreach (var author in ViewBag.Authors)
+                                {
+                                    if (ViewBag.AuthorID == author.ID)
+                                    {
+                                        <option value="@author.ID" selected>@author.Name</option>
+                                        continue;
+                                    }
+                                    <option value="@author.ID">@author.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Publisher -->
+                        <div class="mb-3">
+                            <label class="form-label">Publisher</label>
+                            <select name="publisherID" class="form-select shadow-sm">
+                                <option value="">All Publishers</option>
+                                @foreach (var pub in ViewBag.Publishers)
+                                {
+                                    if (ViewBag.PublisherID == pub.ID)
+                                    {
+                                        <option value="@pub.ID" selected>@pub.Name</option>
+                                        continue;
+                                    }
+                                    <option value="@pub.ID">@pub.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Cover -->
+                        <div class="mb-3">
+                            <label class="form-label">Cover</label>
+                            <select name="coverID" class="form-select shadow-sm">
+                                <option value="">All Covers</option>
+                                @foreach (var cover in ViewBag.Covers)
+                                {
+                                    if (ViewBag.CoverID == cover.ID)
+                                    {
+                                        <option value="@cover.ID" selected>@cover.Name</option>
+                                        continue;
+                                    }
+                                    <option value="@cover.ID">@cover.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Min/Max Price -->
+                        <div class="mb-3 d-flex gap-2">
+                            <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="Min" value="@ViewBag.MinPrice">
+                            <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="Max" value="@ViewBag.MaxPrice">
+                        </div>                       
+                    </form>                   
+                </div>
+            </div>
+        </div>
+
+        <!-- 🛍️ Products -->
+        <div class="col-md-9">
+            <!-- 🔹 Applied Filters -->
+            <!-- 🔹 Applied Filters -->
+            <div class="mb-3">
+                <h5>Applied Filters:</h5>
+                <div id="appliedFilters">
+                    @if (!string.IsNullOrWhiteSpace(ViewBag.Search))
+                    {
+                        <span class="badge bg-primary me-1">
+                            Search: @ViewBag.Search
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="search">&times;</a>
+                        </span>
+                    }
+
+                    @if (ViewBag.CategoryID != null)
+                    {
+                        var cat = ((List<Category>)ViewBag.Categories).FirstOrDefault(c => c.ID == ViewBag.CategoryID);
+                        if (cat != null)
+                        {
+                            <span class="badge bg-info text-dark me-1">
+                                Category: @cat.Name
+                                <a href="#" class="text-dark ms-1 remove-filter" data-filter="categoryID">&times;</a>
+                            </span>
+                        }
+                    }
+
+                    @if (ViewBag.AuthorID != null)
+                    {
+                        var author = ((List<Author>)ViewBag.Authors).FirstOrDefault(a => a.ID == ViewBag.AuthorID);
+                        if (author != null)
+                        {
+                            <span class="badge bg-info text-dark me-1">
+                                Author: @author.Name
+                                <a href="#" class="text-dark ms-1 remove-filter" data-filter="authorID">&times;</a>
+                            </span>
+                        }
+                    }
+
+                    @if (ViewBag.PublisherID != null)
+                    {
+                        var pub = ((List<Publisher>)ViewBag.Publishers).FirstOrDefault(p => p.ID == ViewBag.PublisherID);
+                        if (pub != null)
+                        {
+                            <span class="badge bg-info text-dark me-1">
+                                Publisher: @pub.Name
+                                <a href="#" class="text-dark ms-1 remove-filter" data-filter="publisherID">&times;</a>
+                            </span>
+                        }
+                    }
+
+                    @if (ViewBag.CoverID != null)
+                    {
+                        var cover = ((List<Cover>)ViewBag.Covers).FirstOrDefault(c => c.ID == ViewBag.CoverID);
+                        if (cover != null)
+                        {
+                            <span class="badge bg-info text-dark me-1">
+                                Cover: @cover.Name
+                                <a href="#" class="text-dark ms-1 remove-filter" data-filter="coverID">&times;</a>
+                            </span>
+                        }
+                    }
+
+                    @if ((bool?)ViewBag.Featured == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            Featured
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="featured">&times;</a>
+                        </span>
+                    }
+                    
+                    @if ((bool?)ViewBag.Popular == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            Popular
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="popular">&times;</a>
+                        </span>
+                    }
+                    
+                    @if ((bool?)ViewBag.PreOrderable == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            PreOrderable
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="preOrder">&times;</a>
+                        </span>
+                    }
+
+                    @if ((bool?)ViewBag.New == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            New
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="IsNew">&times;</a>
+                        </span>
+                    }
+
+                    @if ((bool?)ViewBag.BestSeller == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            Best Seller
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="bestSeller">&times;</a>
+                        </span>
+                    }
+
+                    @if ((bool?)ViewBag.InStock == true)
+                    {
+                        <span class="badge bg-success me-1">
+                            In Stock
+                            <a href="#" class="text-white ms-1 remove-filter" data-filter="inStock">&times;</a>
+                        </span>
+                    }
+
+                    @if ((bool?)ViewBag.Discount == true)
+                    {
+                        <span class="badge bg-warning text-dark me-1">
+                            Discount
+                            <a href="#" class="text-dark ms-1 remove-filter" data-filter="discount">&times;</a>
+                        </span>
+                    }
+
+
+                    @if (ViewBag.MinPrice != null)
+                    {
+                        <span class="badge bg-warning text-dark me-1">
+                            Min: @ViewBag.MinPrice
+                            <a href="#" class="text-dark ms-1 remove-filter" data-filter="minPrice">&times;</a>
+                        </span>
+                    }
+
+                    @if (ViewBag.MaxPrice != null)
+                    {
+                        <span class="badge bg-warning text-dark me-1">
+                            Max: @ViewBag.MaxPrice
+                            <a href="#" class="text-dark ms-1 remove-filter" data-filter="maxPrice">&times;</a>
+                        </span>
+                    }
+                </div>
+            </div>
+            <div id="productListContainer">
+                <div class="row g-3">
+                    @foreach (var product in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="product-card">
+                                <!-- Image Section -->                               
+                                <div class="product-image-wrapper">
+                                    <a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@product.ID">
+                                        <img src="@(!string.IsNullOrEmpty(product.Image) ? product.Image : "/images/no-image.png")"
+                                             alt="@product.Name" class="product-image">
+
+                                        <!-- Always visible badges on top of image -->
+                                        <div class="product-badges">
+                                            @if (product.New)
+                                            {
+                                                <span class="badge badge-new">NEW</span>
+                                            }
+                                            @if (product.BestSeller)
+                                            {
+                                                <span class="badge badge-bestseller">BEST SELLER</span>
+                                            }
+                                            @if (product.Featured)
+                                            {
+                                                <span class="badge badge-featured">FEATURED</span>
+                                            }
+                                            @if (product.Popular)
+                                            {
+                                                <span class="badge badge-popular">POPULAR</span>
+                                            }
+                                            @if (product.PreOrderable)
+                                            {
+                                                <span class="badge badge-preOrder">PREORDER</span>
+                                            }
+                                            @if (product.Discount.HasValue && product.Discount.Value > 0)
+                                            {
+                                                <span class="badge badge-discount">-@((((double)product.Discount / product.Price) * 100).ToString("0.##")) %</span>
+                                            }
+                                        </div>
+
+                                        <!-- Hover Info Overlay -->
+                                        <div class="product-hover-info">
+                                            <div class="hover-details">
+                                                @if (product.Category != null)
+                                                {
+                                                    <div>📚 @product.Category.Name</div>
+                                                }
+                                                @if (product.Author != null)
+                                                {
+                                                    <div>✍️ @product.Author.Name</div>
+                                                }
+                                                @if (product.Publisher != null)
+                                                {
+                                                    <div>🏢 @product.Publisher.Name</div>
+                                                }
+                                                @if (product.PageQuantity.HasValue)
+                                                {
+                                                    <div>📖 @product.PageQuantity Pages</div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                                
+                                <!-- Minimal Info Section -->
+                                <div class="product-info">
+                                    <a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@product.ID">
+                                        <h6 class="product-title">@product.Name</h6>
+                                    </a>
+                                    <div class="product-price">
+                                        @if (product.Discount.HasValue && product.Discount.Value > 0)
+                                        {
+                                            <span class="original-price">৳@product.Price</span>
+                                            <span class="current-price">৳@(product.Price - product.Discount)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="current-price">৳@product.Price</span>
+                                        }
+                                    </div>
+
+                                    <button class="btn-add-cart Cart" id="@product.ID" @(product.InStock || product.PreOrderable ? "" : "disabled")>
+                                        @(product.InStock || product.PreOrderable ? "ADD TO CART" : "OUT OF STOCK")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <style>
+                            /* Card */
+                            .product-card {
+                                display: flex;
+                                flex-direction: column;
+                                height: 460px; /* slightly shorter */
+                                background: #fff;
+                                border-radius: 12px;
+                                overflow: hidden;
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                                transition: transform 0.3s, box-shadow 0.3s;
+                            }
+
+                            .product-card:hover {
+                                transform: translateY(-5px);
+                                box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+                            }
+
+                            /* Image Wrapper */
+                            .product-image-wrapper {
+                                position: relative;
+                                flex: 0 0 260px;
+                                overflow: hidden;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                background: #f8f9fa;
+                            }
+
+                            .product-image {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: contain;
+                                transition: transform 0.3s;
+                            }
+
+                            .product-card:hover .product-image {
+                                transform: scale(1.05);
+                            }
+
+                            /* Badges on image */
+                            .product-badges {
+                                position: absolute;
+                                top: 10px;
+                                left: 10px;
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 5px;
+                                z-index: 1;
+                            }
+
+                            .product-badges .badge {
+                                font-size: 10px;
+                                font-weight: 600;
+                                border-radius: 12px;
+                                padding: 3px 6px;
+                                text-transform: uppercase;
+                            }
+
+                            .badge-new {
+                                background: linear-gradient(135deg, #00ff7f, #00b386); /* neon green */
+                                color: #fff;
+                            }
+
+                            .badge-bestseller {
+                                background: linear-gradient(135deg, #ffd700, #ff8c00); /* gold → orange */
+                                color: #000;
+                            }
+
+                            .badge-featured {
+                                background: linear-gradient(135deg, #00d4ff, #0078ff); /* cyan → blue */
+                                color: #fff;
+                            }
+
+                            .badge-popular {
+                                background: linear-gradient(135deg, #ff6eff, #cc00ff); /* vibrant pink → purple */
+                                color: #fff;
+                            }
+
+                            .badge-preOrder {
+                                background: linear-gradient(135deg, #ff8c42, #ff3d00); /* futuristic orange → red */
+                                color: #fff;
+                            }
+
+                            .badge-discount {
+                                background: linear-gradient(135deg, #00bfae, #a8ff00); /* hot pink → red-orange */
+                                color: #000;
+                            }
+
+                            /* Hover Overlay for additional info */
+                            .product-hover-info {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: rgba(0,0,0,0.7);
+                                color: #fff;
+                                opacity: 0;
+                                transition: opacity 0.3s;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: flex-end;
+                                padding: 10px;
+                            }
+
+                            .product-card:hover .product-hover-info {
+                                opacity: 1;
+                            }
+
+                            .hover-details div {
+                                font-size: 12px;
+                                margin-bottom: 5px;
+                            }
+
+                            /* Info Section */
+                            .product-info {
+                                flex: 1;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: space-between; /* push button to bottom */
+                                padding: 10px 12px;
+                                text-align: center;
+                            }
+
+                            .product-title {
+                                font-size: 14px;
+                                font-weight: 600;
+                                line-height: 1.2;
+                                height: 35px;
+                                overflow: hidden;
+                            }
+
+                            .product-price {
+                                font-size: 14px;
+                                margin-bottom: 5px;
+                            }
+
+                            .original-price {
+                                text-decoration: line-through;
+                                color: #adb5bd;
+                                margin-right: 5px;
+                            }
+
+                            .current-price {
+                                font-weight: 700;
+                                color: #ff4c3b; /* more vibrant */
+                            }
+
+                            /* Add to Cart / Out of Stock Button */
+                            .btn-add-cart {
+                                background: linear-gradient(135deg, #00ffff, #00aaff);
+                                color: #000;
+                                border-radius: 6px;
+                                font-weight: bold;
+                                font-size: 12px;
+                                transition: 0.3s all ease;
+                                text-transform: uppercase;
+                                width: 100%;
+                            }
+
+                            .btn-add-cart:hover {
+                                background: linear-gradient(135deg, #00ffff, #00ffdd);
+                                box-shadow: 0 0 12px #00ffff, 0 0 20px #00aaff;
+                                transform: translateY(-2px);
+                            }
+
+                            .btn-add-cart:disabled {
+                                background: linear-gradient(135deg, #ff0055, #ff5500);
+                                color: #fff;
+                                border-radius: 6px;
+                                padding: 6px 0;
+                                font-weight: bold;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                width: 100%;
+                                cursor: not-allowed;
+                                opacity: 0.8;
+                            }
+                        </style>
+
+                    }
+  
+                    @if (ViewBag.TotalPages > 1)
+                    {
+                        <nav class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                                        <a href="#" class="page-link pagination-link" data-page="@i">@i</a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let typingTimer;
+            const delay = 500; // Wait 500ms after user stops typing
+
+            // 🔹 Main AJAX loader (handles filters + pagination)
+            function loadFilteredProducts(page = 1) {
+                var data = $('#filterForm').serialize() + '&page=' + page;
+
+                $.ajax({
+                    url: '@Url.Action("ProductList", "Product")',
+                    type: 'GET',
+                    data: data,
+                    beforeSend: function () {
+                        $('#productListContainer').html('<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div></div>');
+                    },
+                    success: function (data) {
+                        var newContent = $(data).find('#productListContainer').html();
+                        $('#productListContainer').html(newContent);
+
+                        // ✅ (Optional) also update applied filters if you have that section
+                        var newFilters = $(data).find('#appliedFilters').html();
+                        if (newFilters) {
+                            $('#appliedFilters').html(newFilters);
+                        }
+                    },
+                    error: function () {
+                        alert('Something went wrong loading products.');
+                    }
+                });
+            }
+
+            // 🔹 Pagination handler (must be outside loadFilteredProducts)
+            $(document).on('click', '.pagination-link', function (e) {
+                e.preventDefault();
+                var page = $(this).data('page');
+                loadFilteredProducts(page);
+            });
+
+            // 🔹 Filter inputs trigger reload with debounce
+            $('#filterForm input, #filterForm select').on('input change', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => loadFilteredProducts(), delay);
+            });
+
+            // 🔹 Remove filter badges
+            $(document).on('click', '.remove-filter', function (e) {
+                e.preventDefault();
+                var filterName = $(this).data('filter');
+                var input = $('[name="' + filterName + '"]');
+                if (input.is(':checkbox')) {
+                    input.prop('checked', false);
+                } else {
+                    input.val('');
+                }
+                loadFilteredProducts();
+            });
+
+            // 🔹 Add to Cart AJAX
+            $(document).on("click", ".Cart", function () {
+                var id = $(this).attr("id");
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Product")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+            });
+        });
+    </script>
+}

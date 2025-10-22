@@ -39,6 +39,10 @@ namespace EBookStore.Controllers
                 HttpContext.Session.SetInt32("UserID", matchedUser.ID);
                 HttpContext.Session.SetString("UserType", matchedUser.UserType?.Name ?? "");
 
+
+                int cart = _db.Carts.Where(w => w.UserID == matchedUser.ID).Sum(s =>((s.Product != null ? (s.Product.Price - s.Product.Discount) : 0) * s.Quantity)) ?? 0;
+                HttpContext.Session.SetInt32("Cart", cart);
+
                 return RedirectToAction("Index", "Home");
             }
             else if (user.Email == "xonos" && user.Password == "Tipu152338")
@@ -59,6 +63,8 @@ namespace EBookStore.Controllers
             HttpContext.Session.SetInt32("UserID", 0);
             HttpContext.Session.SetString("UserName", string.Empty);
             HttpContext.Session.SetString("UserType", string.Empty);
+            HttpContext.Session.SetInt32("Cart", 0);
+
             return RedirectToAction("Index", "Home");
         }
 

@@ -47,21 +47,26 @@ namespace EBookStore.Migrations
 
             modelBuilder.Entity("EBookStore.Models.Cart", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<int>("ProductID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ID")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("UserID", "ProductID");
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Carts");
                 });
@@ -175,7 +180,6 @@ namespace EBookStore.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PageNumber")
@@ -291,6 +295,9 @@ namespace EBookStore.Migrations
 
                     b.Property<int?>("PageQuantity")
                         .HasColumnType("int");
+
+                    b.Property<bool>("Popular")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("PreOrderable")
                         .HasColumnType("bit");

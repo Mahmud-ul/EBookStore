@@ -36,8 +36,6 @@ namespace EBookStore.Models.Database
             #endregion
 
             #region Cart
-            modelBuilder.Entity<Cart>().HasKey(k => new { k.UserID, k.ProductID });
-
             modelBuilder.Entity<Cart>().HasOne(m => m.User).WithMany(w => w.Carts).HasForeignKey(k => k.UserID);
             modelBuilder.Entity<Cart>().HasOne(m => m.Product).WithMany(w => w.Carts).HasForeignKey(k => k.ProductID);
             #endregion

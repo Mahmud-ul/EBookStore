@@ -1,0 +1,1012 @@
+﻿@model EBookStore.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var Pages = ViewBag.Pages as IEnumerable<Page>;
+}
+
+<div class="container my-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="ProductList" asp-controller="Product">Books</a></li>
+            @if (Model.Category != null)
+            {
+                <li class="breadcrumb-item"><a asp-action="ProductList" asp-controller="Product" asp-route-categoryID="@Model.CategoryID">@Model.Category.Name</a></li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- 📖 Left Column: Book Cover + Preview Pages -->
+        <div class="col-md-5">
+            <!-- Book Cover Image -->
+            <div class="book-cover-wrapper">
+                <img src="@(!string.IsNullOrEmpty(Model.Image) ? Model.Image : "/images/no-image.png")"
+                     alt="@Model.Name" class="book-cover-image" id="mainImage">
+
+                <!-- Status Badges -->
+                <div class="book-badges">
+                    @if (Model.New)
+                    {
+                        <span class="badge badge-new">NEW RELEASE</span>
+                    }
+                    @if (Model.BestSeller)
+                    {
+                        <span class="badge badge-bestseller">BEST SELLER</span>
+                    }
+                    @if (Model.Featured)
+                    {
+                        <span class="badge badge-featured">FEATURED</span>
+                    }
+                    @if (Model.Popular)
+                    {
+                        <span class="badge badge-popular">POPULAR</span>
+                    }
+                    @if (Model.PreOrderable)
+                    {
+                        <span class="badge badge-preOrder">PRE-ORDER</span>
+                    }
+                    @if (Model.Discount.HasValue && Model.Discount.Value > 0)
+                    {
+                        <span class="badge badge-discount">SAVE @((((double)Model.Discount / Model.Price) * 100).ToString("0"))%</span>
+                    }
+                </div>
+            </div>
+
+            <!-- 📖 Preview Pages Section (Below Book Cover) -->
+            @if (Pages != null && Pages.Any())
+            {
+                <div class="preview-pages-compact">
+                    <div class="preview-compact-header">
+                        <h5 class="preview-compact-title">
+                            <i class="bi bi-eye-fill"></i> Preview Pages
+                        </h5>
+                        <p class="preview-compact-subtitle">Click to view full page</p>
+                    </div>
+                    
+                    <div class="preview-pages-grid">
+                        @foreach (var page in Pages.Take(6))
+                        {
+                            <div class="preview-page-thumb" data-image="@(page.Image)" data-page="@(page.PageNumber)">
+                                <img src="@(page.Image)" alt="Page @(page.PageNumber)" class="thumb-image">
+                                <div class="thumb-overlay">
+                                    <i class="bi bi-zoom-in"></i>
+                                    <span>Page @(page.PageNumber)</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    @if (Pages.Count() > 6)
+                    {
+                        <div class="preview-more-info">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            <span>@(Pages.Count() - 6) more pages available to preview</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- 📚 Book Information -->
+        <div class="col-md-7">
+            <div class="book-detail-info">
+                <!-- Book Title -->
+                <h1 class="book-title">@Model.Name</h1>
+
+                <!-- Author & Publisher -->
+                <div class="book-creators">
+                    @if (Model.Author != null)
+                    {
+                        <div class="creator-info">
+                            <span class="creator-label">by</span>
+                            <a asp-action="ProductList" asp-controller="Product" asp-route-authorID="@Model.AuthorID" class="creator-name">@Model.Author.Name</a>
+                        </div>
+                    }
+                    @if (Model.Publisher != null)
+                    {
+                        <div class="creator-info">
+                            <span class="creator-label">Published by</span>
+                            <a asp-action="ProductList" asp-controller="Product" asp-route-publisherID="@Model.PublisherID" class="creator-name">@Model.Publisher.Name</a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Price Section -->
+                <div class="price-section">
+                    <div class="price-display">
+                        @if (Model.Discount.HasValue && Model.Discount.Value > 0)
+                        {
+                            <div class="price-with-discount">
+                                <span class="price-original">৳@Model.Price.ToString("N0")</span>
+                                <span class="price-current">৳@(((decimal)(Model.Price - Model.Discount)).ToString("N0"))</span>
+                                <span class="price-save">You Save: ৳@((Model.Discount ?? 0).ToString("N0"))</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="price-current">৳@Model.Price.ToString("N0")</span>
+                        }
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="stock-indicator">
+                        @if (Model.InStock)
+                        {
+                            <span class="stock-badge in-stock">
+                                <i class="bi bi-check-circle-fill"></i> In Stock - Ships Today
+                            </span>
+                        }
+                        else if (Model.PreOrderable)
+                        {
+                            <span class="stock-badge pre-order">
+                                <i class="bi bi-clock-fill"></i> Available for Pre-Order
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="stock-badge out-stock">
+                                <i class="bi bi-x-circle-fill"></i> Currently Unavailable
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Book Specifications -->
+                <div class="book-specs">
+                    <h5 class="specs-title">Book Details</h5>
+                    <div class="specs-grid">
+                        @if (Model.Category != null)
+                        {
+                            <div class="spec-item">
+                                <span class="spec-label">Category</span>
+                                <span class="spec-value">@Model.Category.Name</span>
+                            </div>
+                        }
+                        @if (Model.Cover != null)
+                        {
+                            <div class="spec-item">
+                                <span class="spec-label">Format</span>
+                                <span class="spec-value">@Model.Cover.Name</span>
+                            </div>
+                        }
+                        @if (Model.PageQuantity.HasValue && Model.PageQuantity.Value > 0)
+                        {
+                            <div class="spec-item">
+                                <span class="spec-label">Pages</span>
+                                <span class="spec-value">@Model.PageQuantity pages</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.Topic))
+                        {
+                            <div class="spec-item">
+                                <span class="spec-label">Topic</span>
+                                <span class="spec-value">@Model.Topic</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Add to Cart Section -->
+                <div class="purchase-section">
+                    <div class="quantity-selector">
+                        <label class="qty-label">Quantity</label>
+                        <div class="qty-controls">
+                            <button type="button" class="qty-btn qty-decrease" id="decreaseQty">−</button>
+                            <input type="number" id="quantity" value="1" min="1" max="99" class="qty-input" readonly>
+                            <button type="button" class="qty-btn qty-increase" id="increaseQty">+</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-add-cart-main" id="addToCartBtn" 
+                            data-product-id="@Model.ID"
+                            @(Model.InStock || Model.PreOrderable ? "" : "disabled")>
+                        <i class="bi bi-cart-plus-fill"></i>
+                        <span>@(Model.InStock || Model.PreOrderable ? "ADD TO CART" : "OUT OF STOCK")</span>
+                    </button>
+                </div>
+
+                <!-- Quick Info Icons -->
+                <div class="quick-benefits">
+                    <div class="benefit-item">
+                        <i class="bi bi-truck"></i>
+                        <span>Free Delivery on orders over ৳500</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>7-Day Easy Return</span>
+                    </div>
+                    <div class="benefit-item">
+                        <i class="bi bi-shield-check"></i>
+                        <span>100% Authentic Books</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📝 Description Section -->
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="book-description-section">
+                    <div class="description-header">
+                        <h3 class="description-title">
+                            <i class="bi bi-book"></i> About This Book
+                        </h3>
+                    </div>
+                    <div class="description-content">
+                        <p>@Model.Description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal for Full Page View -->
+    <div class="modal fade" id="pageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pageModalLabel">Preview Page</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" id="modalPageImage" class="img-fluid" alt="Page Preview">
+                </div>
+                @* <div class="modal-footer">
+                    <button type="button" class="btn-modal-buy" onclick="$('#pageModal').modal('hide'); $('#addToCartBtn').click();">
+                        <i class="bi bi-cart-plus-fill"></i> Add to Cart
+                    </button>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Breadcrumb Styling */
+    .breadcrumb {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    .breadcrumb-item a {
+        color: #007bff;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #0056b3;
+    }
+
+    /* Book Cover Wrapper */
+    .book-cover-wrapper {
+        position: relative;
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border-radius: 16px;
+        padding: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 550px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        margin-bottom: 25px;
+    }
+
+    .book-cover-wrapper:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    }
+
+    .book-cover-image {
+        max-width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 20px rgba(0,0,0,0.2));
+        transition: transform 0.4s ease;
+    }
+
+    .book-cover-wrapper:hover .book-cover-image {
+        transform: scale(1.05);
+    }
+
+    /* Book Badges */
+    .book-badges {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 2;
+    }
+
+    .book-badges .badge {
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 6px 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+        animation: badgePulse 2s infinite;
+    }
+
+    @@keyframes badgePulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .badge-new { background: linear-gradient(135deg, #00ff7f, #00b386); color: #fff; }
+    .badge-bestseller { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; }
+    .badge-featured { background: linear-gradient(135deg, #00d4ff, #0078ff); color: #fff; }
+    .badge-popular { background: linear-gradient(135deg, #ff6eff, #cc00ff); color: #fff; }
+    .badge-preOrder { background: linear-gradient(135deg, #ff8c42, #ff3d00); color: #fff; }
+    .badge-discount { background: linear-gradient(135deg, #00bfae, #a8ff00); color: #000; }
+
+    /* Preview Pages Compact Section */
+    .preview-pages-compact {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .preview-compact-header {
+        background: linear-gradient(135deg, #ff6eff, #cc00ff);
+        padding: 15px 20px;
+        color: #fff;
+        text-align: center;
+    }
+
+    .preview-compact-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .preview-compact-subtitle {
+        font-size: 13px;
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    /* Preview Pages Grid */
+    .preview-pages-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 15px;
+        background: #f8f9fa;
+    }
+
+    .preview-page-thumb {
+        position: relative;
+        aspect-ratio: 3/4;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .preview-page-thumb:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .thumb-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s;
+    }
+
+    .preview-page-thumb:hover .thumb-image {
+        transform: scale(1.1);
+    }
+
+    .thumb-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.75);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .preview-page-thumb:hover .thumb-overlay {
+        opacity: 1;
+    }
+
+    .thumb-overlay i {
+        font-size: 28px;
+    }
+
+    .thumb-overlay span {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* More Pages Info */
+    .preview-more-info {
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        padding: 12px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .preview-more-info i {
+        font-size: 18px;
+        color: #007bff;
+    }
+
+    /* Book Info Section */
+    .book-detail-info {
+        padding: 10px 20px;
+    }
+
+    .book-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: #212529;
+        margin-bottom: 15px;
+        line-height: 1.3;
+        letter-spacing: -0.5px;
+    }
+
+    /* Creators Info */
+    .book-creators {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .creator-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+    }
+
+    .creator-label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .creator-name {
+        color: #007bff;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .creator-name:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+    /* Price Section */
+    .price-section {
+        margin: 25px 0;
+        padding: 25px;
+        background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+        border-radius: 16px;
+        border-left: 6px solid #ff4c3b;
+        box-shadow: 0 4px 15px rgba(255,76,59,0.15);
+    }
+
+    .price-display {
+        margin-bottom: 15px;
+    }
+
+    .price-with-discount {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .price-original {
+        font-size: 22px;
+        color: #adb5bd;
+        text-decoration: line-through;
+        font-weight: 500;
+    }
+
+    .price-current {
+        font-size: 42px;
+        font-weight: 900;
+        color: #ff4c3b;
+        letter-spacing: -1px;
+    }
+
+    .price-save {
+        background: linear-gradient(135deg, #00ff7f, #00b386);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Stock Indicator */
+    .stock-indicator {
+        margin-top: 12px;
+    }
+
+    .stock-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stock-badge.in-stock {
+        background: linear-gradient(135deg, #00ff7f, #00b386);
+        color: #fff;
+    }
+
+    .stock-badge.pre-order {
+        background: linear-gradient(135deg, #ff8c42, #ff3d00);
+        color: #fff;
+    }
+
+    .stock-badge.out-stock {
+        background: linear-gradient(135deg, #ff0055, #ff5500);
+        color: #fff;
+    }
+
+    /* Book Specifications */
+    .book-specs {
+        margin: 30px 0;
+        padding: 25px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .specs-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .specs-title:before {
+        content: "📖";
+        font-size: 24px;
+    }
+
+    .specs-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .spec-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .spec-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .spec-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    /* Purchase Section */
+    .purchase-section {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        margin: 30px 0;
+        flex-wrap: wrap;
+    }
+
+    .quantity-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .qty-label {
+        font-size: 14px;
+        font-weight: 700;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .qty-controls {
+        display: flex;
+        align-items: center;
+        border: 2px solid #dee2e6;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        background: #fff;
+    }
+
+    .qty-btn {
+        width: 45px;
+        height: 45px;
+        border: none;
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        color: #fff;
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .qty-btn:hover {
+        background: linear-gradient(135deg, #0056b3, #0099cc);
+    }
+
+    .qty-btn:active {
+        transform: scale(0.95);
+    }
+
+    .qty-input {
+        width: 70px;
+        height: 45px;
+        border: none;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 700;
+        outline: none;
+        background: #fff;
+        line-height: 45px;
+        padding: 0;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    /* Remove spinner arrows from number input */
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .qty-input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    /* Add to Cart Button */
+    .btn-add-cart-main {
+        flex: 1;
+        min-width: 280px;
+        padding: 15px 35px;
+        background: linear-gradient(135deg, #00ffff, #00aaff);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0,170,255,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .btn-add-cart-main i {
+        font-size: 20px;
+    }
+
+    .btn-add-cart-main:hover:not(:disabled) {
+        background: linear-gradient(135deg, #00ffff, #00ffdd);
+        box-shadow: 0 0 25px #00ffff, 0 0 40px #00aaff;
+        transform: translateY(-3px);
+    }
+
+    .btn-add-cart-main:active:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    .btn-add-cart-main:disabled {
+        background: linear-gradient(135deg, #ff0055, #ff5500);
+        color: #fff;
+        cursor: not-allowed;
+        opacity: 0.8;
+        box-shadow: none;
+    }
+
+    /* Quick Benefits */
+    .quick-benefits {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 25px;
+        padding: 20px;
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .benefit-item i {
+        font-size: 22px;
+        color: #007bff;
+    }
+
+    /* Description Section */
+    .book-description-section {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .description-header {
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        padding: 20px 30px;
+        color: #fff;
+    }
+
+    .description-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .description-title i {
+        font-size: 28px;
+    }
+
+    .description-content {
+        padding: 30px;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #495057;
+    }
+
+    .description-content p {
+        margin: 0;
+        text-align: justify;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        color: #fff;
+        border: none;
+    }
+
+    .modal-body {
+        padding: 30px;
+        background: #f8f9fa;
+    }
+
+    #modalPageImage {
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        height: 100vh;
+        max-height: 100vh;
+        object-fit: contain;
+    }
+
+    .modal-footer {
+        border: none;
+        padding: 20px 30px;
+        background: #f8f9fa;
+        justify-content: center;
+    }
+
+    .btn-modal-buy {
+        background: linear-gradient(135deg, #00ffff, #00aaff);
+        color: #000;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 800;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0,170,255,0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-modal-buy:hover {
+        background: linear-gradient(135deg, #00ffff, #00ffdd);
+        box-shadow: 0 0 20px #00ffff, 0 0 30px #00aaff;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .book-title {
+            font-size: 26px;
+        }
+
+        .price-current {
+            font-size: 32px;
+        }
+
+        .specs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .purchase-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .quantity-selector {
+            width: 100%;
+        }
+
+        .qty-controls {
+            justify-content: center;
+        }
+
+        .btn-add-cart-main {
+            min-width: 100%;
+        }
+
+        .preview-pages-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Quantity Controls
+            $('#increaseQty').click(function () {
+                var qty = parseInt($('#quantity').val());
+                if (qty < 99) {
+                    $('#quantity').val(qty + 1);
+                }
+            });
+
+            $('#decreaseQty').click(function () {
+                var qty = parseInt($('#quantity').val());
+                if (qty > 1) {
+                    $('#quantity').val(qty - 1);
+                }
+            });
+
+            // Prevent manual input
+            $('#quantity').on('keydown', function(e) {
+                e.preventDefault();
+            });
+
+            // Add to Cart with AJAX
+            $('#addToCartBtn').click(function () {
+                var productId = $(this).data('product-id');
+                var quantity = parseInt($('#quantity').val());
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Product")',
+                    type: "POST",
+                    data: { 
+                        id: productId,
+                        quantity: quantity 
+                    },
+                    beforeSend: function() {
+                        $('#addToCartBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Adding...');
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // Success feedback
+                            $('#addToCartBtn').html('<i class="bi bi-check-circle-fill"></i> Added to Cart!');
+                            
+                            // Update cart display
+                            $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                            
+                            // Reset button after 2 seconds
+                            setTimeout(function() {
+                                $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
+                            }, 2000);
+                        } else {
+                            alert(response.message);
+                            $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                        alert("Failed to add book to cart. Please try again.");
+                        $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
+                    }
+                });
+            });
+
+            // Preview Page Thumbnails - Click to view full page
+            $('.preview-page-thumb').click(function() {
+                var imageUrl = $(this).data('image');
+                var pageNum = $(this).data('page');
+                
+                $('#modalPageImage').attr('src', imageUrl);
+                $('#pageModalLabel').text('Page ' + pageNum);
+                
+                var pageModal = new bootstrap.Modal(document.getElementById('pageModal'));
+                pageModal.show();
+            });
+        });
+    </script>
+}

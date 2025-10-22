@@ -40,6 +40,7 @@ namespace EBookStore.Models
         public string? Description { get; set; } = string.Empty;
 
         public bool Featured { get; set; }
+        public bool Popular { get; set; }
         public bool New { get; set; }
         public bool PreOrderable { get; set; }
         public bool InStock { get; set; }

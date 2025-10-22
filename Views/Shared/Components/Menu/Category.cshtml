@@ -1,0 +1,11 @@
+﻿@model IEnumerable<EBookStore.Models.Category>
+
+
+@foreach(var item in Model)
+{
+    <li class="@(ViewBag.CategoryID == item.ID ? "active" : "")">
+        <a asp-action="ProductList" asp-controller="Product"
+           asp-route-categoryID="@item.ID"
+           class="nav-link">@item.Name</a>
+    </li>
+}
