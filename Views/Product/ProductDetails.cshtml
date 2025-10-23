@@ -195,9 +195,9 @@
                     <div class="quantity-selector">
                         <label class="qty-label">Quantity</label>
                         <div class="qty-controls">
-                            <button type="button" class="qty-btn qty-decrease" id="decreaseQty">−</button>
+                            <button type="button" class="qty-btn qty-decrease" id="decreaseQty"><i class="bi bi-dash-lg"></i></button>
                             <input type="number" id="quantity" value="1" min="1" max="99" class="qty-input" readonly>
-                            <button type="button" class="qty-btn qty-increase" id="increaseQty">+</button>
+                            <button type="button" class="qty-btn qty-increase" id="increaseQty"><i class="bi bi-plus-lg"></i></button>
                         </div>
                     </div>
 
@@ -962,7 +962,7 @@
                 var quantity = parseInt($('#quantity').val());
 
                 $.ajax({
-                    url: '@Url.Action("AddToCart", "Product")',
+                    url: '@Url.Action("AddToCart", "Cart")',
                     type: "POST",
                     data: { 
                         id: productId,

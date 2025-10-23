@@ -5,7 +5,7 @@
 namespace EBookStore.Migrations
 {
     /// <inheritdoc />
-    public partial class updatecart : Migration
+    public partial class UpdateCart : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

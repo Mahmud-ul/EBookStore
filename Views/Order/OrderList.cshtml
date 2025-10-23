@@ -1,0 +1,113 @@
+﻿@model IEnumerable<EBookStore.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="bi bi-bag-check-fill me-2"></i>My Orders</h3>
+            <span class="text-white-50 small">All your placed orders are listed below</span>
+        </div>
+
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="example">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order No.</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-semibold">Order-@(10000 + order.ID)</span></td>
+                                    <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
+                                    @* <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
+                                    <td>
+                                        @if (order.PaymentMethod == "CashOnDelivery")
+                                        {
+                                            <span class="badge bg-secondary"><i class="bi bi-cash me-1"></i>COD</span>
+                                        }
+                                        else if (order.PaymentMethod == "Bkash")
+                                        {
+                                            <span class="badge bg-pink"><i class="bi bi-phone-fill me-1"></i>bKash</span>
+                                        }
+                                        else if (order.PaymentMethod == "Nagad")
+                                        {
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-wallet2 me-1"></i>Nagad</span>
+                                        }
+                                        else if (order.PaymentMethod == "Rocket")
+                                        {
+                                            <span class="badge bg-info text-dark"><i class="bi bi-send-fill me-1"></i>Rocket</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-primary"><i class="bi bi-credit-card-2-front me-1"></i>Card</span>
+                                        }
+                                    </td> *@
+                                    <td>
+                                        @if (order.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                        else if (order.Status == "Processing")
+                                        {
+                                            <span class="badge bg-info text-dark">Processing</span>
+                                        }
+                                        else if (order.Status == "Delivered")
+                                        {
+                                            <span class="badge bg-success">Delivered</span>
+                                        }
+                                        else if (order.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        }
+                                    </td>
+                                    @* <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm rounded-circle me-2" data-bs-toggle="tooltip" title="View Details">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        <a asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-outline-success btn-sm rounded-circle" data-bs-toggle="tooltip" title="Download Invoice">
+                                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                                        </a>
+                                    </td> *@
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-box2-heart text-muted display-4 mb-3"></i>
+                    <h5 class="text-muted">No orders found</h5>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-success mt-3">
+                        <i class="bi bi-shop me-2"></i>Continue Shopping
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}

@@ -128,47 +128,108 @@ namespace EBookStore.Controllers
             return View(cart);
         }
 
-        // GET: Cart/Delete?userID=5&productID=10
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var cart = await _context.Carts
-                .Include(c => c.Product)
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(m => m.ID == id);
-
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return View(cart);
-        }
-
-        // POST: Cart/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var cart = await _context.Carts
-                .FirstOrDefaultAsync(m => m.ID == id);
-
-            if (cart != null)
-            {
-                _context.Carts.Remove(cart);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
         private bool CartExists(int id)
         {
             return _context.Carts.Any(e => e.ID == id);
         }
+
+        public async Task<IActionResult> CartList()
+        {
+            var carts = _context.Carts.Where(w=>w.UserID == HttpContext.Session.GetInt32("UserID")).Include(c => c.Product).Include(c => c.User);
+            return View(await carts.ToListAsync());
+        }
+
+        [HttpPost]
+        public IActionResult AddToCart(int id)
+        {
+            int? userID = HttpContext.Session.GetInt32("UserID");
+
+            if (userID == null || userID == 0)
+            {
+                // Return JSON response indicating login is required
+                return Json(new { success = false, message = "Please log in to add items to your cart." });
+            }
+
+            bool exist = _context.Carts.Where(w => w.UserID == userID && w.ProductID == id).Any();
+
+            if (exist)
+                return Json(new { success = false, message = "Already added to the cart!" });
+
+            Cart cart = new Cart
+            {
+                ProductID = id,
+                UserID = userID ?? 0,
+                Quantity = 1
+            };
+            _context.Add(cart);
+            int save = _context.SaveChanges();
+
+            int totalCart = _context.Carts
+                    .Where(w => w.UserID == userID)
+                    .Include(s => s.Product) // ensure Product is loaded
+                    .ToList() // switch to client-side evaluation
+                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
+
+            HttpContext.Session.SetInt32("Cart", totalCart);
+
+            if (save > 0)
+            {
+                return Json(new { success = true, message = "Item added to cart!", totalCart });
+            }
+            else
+                return Json(new { message = "Failed to save" });
+        }
+
+        [HttpPost]
+        public IActionResult UpdateQuantity(int id, int quantity)
+        {
+            var cart = _context.Carts.FirstOrDefault(c => c.ID == id);
+            if (cart != null)
+            {
+                cart.Quantity = quantity;
+                _context.SaveChanges();
+            }
+
+            int? userID = HttpContext.Session.GetInt32("UserID");
+            int totalCart = 0;
+            if (userID != null)
+            {
+                totalCart = _context.Carts
+                    .Where(w => w.UserID == userID)
+                    .Include(s => s.Product) // ensure Product is loaded
+                    .ToList() // switch to client-side evaluation
+                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
+
+                HttpContext.Session.SetInt32("Cart", totalCart);
+            }
+
+            return Json(new { success = true, totalCart });
+        }
+
+        [HttpPost]
+        public IActionResult Remove(int id)
+        {
+            var cart = _context.Carts.FirstOrDefault(c => c.ID == id);
+            if (cart != null)
+            {
+                _context.Carts.Remove(cart);
+                _context.SaveChanges();
+            }
+
+            int? userID = HttpContext.Session.GetInt32("UserID");
+            int totalCart = 0;
+            if (userID != null)
+            {
+                totalCart = _context.Carts
+                    .Where(w => w.UserID == userID)
+                    .Include(s => s.Product) // ensure Product is loaded
+                    .ToList() // switch to client-side evaluation
+                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
+
+                HttpContext.Session.SetInt32("Cart", totalCart);
+            }
+
+            return Json(new { success = true, totalCart });
+        }      
     }
 }

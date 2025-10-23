@@ -412,41 +412,6 @@ namespace EBookStore.Controllers
             return _context.Products.Any(e => e.ID == id);
         }
 
-        public IActionResult AddToCart(int id)
-        {
-            int? userID = HttpContext.Session.GetInt32("UserID");
-
-            if (userID == null || userID == 0)
-            {
-                // Return JSON response indicating login is required
-                return Json(new { success = false, message = "Please log in to add items to your cart." });
-            }
-
-            bool exist = _context.Carts.Where(w => w.UserID == userID && w.ProductID == id).Any();
-
-            if(exist)
-                return Json(new { success = false, message = "Already added to the cart!" });
-
-            Cart cart = new Cart
-            {
-                ProductID = id,
-                UserID = userID ?? 0,
-                Quantity = 1
-            };
-            _context.Add(cart);
-            int save = _context.SaveChanges();
-
-            int totalCart = _context.Carts.Where(w => w.UserID == userID).Sum(s => ((s.Product != null ? (s.Product.Price-s.Product.Discount) : 0) * s.Quantity)) ?? 0;
-            HttpContext.Session.SetInt32("Cart", totalCart);
-
-            if (save>0)
-            {
-                return Json(new { success = true, message = "Item added to cart!", totalCart });
-            }
-            else
-                return Json(new { message = "Failed to save"});            
-        }
-
         public async Task<IActionResult> ProductList(string search, int? categoryID, int? authorID, int? publisherID, int? coverID, 
             int? minPrice, int? maxPrice, bool? featured, bool? popular, bool? preOrder, bool? IsNew, bool? bestSeller, bool? inStock, 
             bool? discount, int? page) // 🆕 added for pagination

@@ -1,0 +1,348 @@
+﻿@model IEnumerable<EBookStore.Models.Cart>
+@{
+    ViewData["Title"] = "Confirm Your Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    decimal insideDhakaCharge = 60;
+    decimal outDhakaCharge = 100;
+
+    // Calculate product total
+    decimal productTotal = Model.Sum(c => (c.Product.Discount.HasValue ? c.Product.Price - c.Product.Discount.Value : c.Product.Price) * c.Quantity);
+}
+
+<div class="container my-5">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header text-white py-3 px-4" style="background: linear-gradient(90deg, #00b4d8, #007bff);">
+            <h4 class="mb-0 fw-semibold"><i class="bi bi-credit-card-2-front-fill me-2"></i>Confirm Your Order</h4>
+        </div>
+
+        <div class="card-body p-4 bg-light">
+
+            <!-- Order Summary Card -->
+            <div class="card shadow-sm rounded-4 p-4 order-summary-card">
+                <h5 class="fw-semibold mb-3 text-center"><i class="bi bi-basket2-fill me-2"></i>Order Summary</h5>
+
+                <!-- Products List -->
+                <div class="table-responsive mb-4">
+                    <table class="table table-borderless align-middle text-center mb-0">
+                        <thead class="bg-white shadow-sm border rounded-3">
+                            <tr class="fw-semibold text-secondary">
+                                <th class="text-start ps-4">Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white rounded-4 shadow-sm">
+                            @foreach (var item in Model)
+                            {
+                                if (item.Product != null)
+                                {
+                                    var price = item.Product.Discount.HasValue ? item.Product.Price - item.Product.Discount.Value : item.Product.Price;
+                                    <tr class="border-bottom">
+                                        <td class="text-start ps-4 d-flex align-items-center gap-3">
+                                            <img src="@(!string.IsNullOrEmpty(item.Product.Image) ? item.Product.Image : "/images/no-image.png")"
+                                                 alt="@item.Product.Name"
+                                                 style="width:60px; height:70px; object-fit:cover; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                                            <span>@item.Product.Name</span>
+                                        </td>
+                                        <td class="fw-semibold text-primary">৳@price</td>
+                                        <td>@item.Quantity</td>
+                                        <td class="fw-semibold text-success">৳@(price* item.Quantity)</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Product Total -->
+                <div class="d-flex justify-content-between align-items-center mb-3 mx-5">
+                    <span class="fw-semibold">Product Total:</span>
+                    <span class="fw-bold text-primary">৳@productTotal</span>
+                </div>
+
+                <!-- Delivery Options (simplified) -->
+                <div class="d-flex gap-3 mb-3">
+                    <label class="form-check-label flex-fill text-center p-2 shadow-sm rounded-3 border">
+                        <input type="radio" name="deliveryOption" value="@insideDhakaCharge" class="delivery-radio" checked>
+                        Inside Dhaka - ৳@insideDhakaCharge
+                    </label>
+                    <label class="form-check-label flex-fill text-center p-2 shadow-sm rounded-3 border">
+                        <input type="radio" name="deliveryOption" value="@outDhakaCharge" class="delivery-radio">
+                        Out of Dhaka - ৳@outDhakaCharge
+                    </label>
+                </div>
+
+                <hr class="my-2" />
+
+                <!-- Grand Total -->
+                <div class="d-flex justify-content-between align-items-center px-5" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);border-radius: 15px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <span class="fs-5 fw-semibold">Grand Total</span>
+                    <span id="grandTotal" class="fs-4 fw-semibold">৳@(productTotal + insideDhakaCharge)</span>
+                </div>
+            </div>
+                        
+            <div class="container my-5">
+                <!-- Shipping Address -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-gradient-primary d-flex align-items-baseline">
+                        <h3 class="mb-0 me-3"><i class="bi bi-truck me-2"></i>Shipping Address</h3>
+                        <div class="d-flex align-items-baseline">
+                            <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input" type="radio" name="AddressType" id="Home" value="Home" checked>
+                                <label class="form-check-label" for="Home">Home</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-0">
+                                <input class="form-check-input" type="radio" name="AddressType" id="Work" value="Work">
+                                <label class="form-check-label" for="Work">Work</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label for="FullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control rounded" id="FullName" placeholder="Enter your full name" required>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-3">
+                            <label for="PhoneNumber" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control rounded" id="PhoneNumber" placeholder="Enter your phone number" required>
+                        </div>
+
+                        <!-- City Dropdown -->
+                        <div class="mb-3">
+                            <label for="City" class="form-label">City</label>
+                            <select class="form-select rounded" id="City" required>
+                                <option value="">Select City</option>
+                                <option value="Dhaka">Dhaka</option>
+                                <option value="Chattogram">Chattogram</option>
+                                <option value="Khulna">Khulna</option>
+                                <option value="Rajshahi">Rajshahi</option>
+                                <option value="Barishal">Barishal</option>
+                                <option value="Sylhet">Sylhet</option>
+                                <option value="Rangpur">Rangpur</option>
+                                <option value="Mymensingh">Mymensingh</option>
+                            </select>
+                        </div>
+
+                        <!-- Area Dropdown -->
+                        <div class="mb-3">
+                            <label for="Area" class="form-label">Area</label>
+                            <select class="form-select rounded" id="Area" required>
+                                <option value="">Select Area</option>
+                            </select>
+                        </div>
+
+                        <!-- Full Address -->
+                        <div class="mb-3">
+                            <label for="FullAddress" class="form-label">Full Address</label>
+                            <textarea class="form-control rounded" id="FullAddress" rows="2" placeholder="Enter your full address" required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-gradient-success text-white">
+                        <h3 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i>Payment Method <small class="text-white-50">(Please select a payment method)</small></h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cash on Delivery Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-2">ক্যাশ অন ডেলিভারি</h5>
+                            <p class="text-muted small mb-3">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
+                            <div class="border rounded p-3">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CashOnDelivery" value="CashOnDelivery" checked style="width: 20px; height: 20px;">
+                                    <label class="form-check-label d-flex align-items-center" for="CashOnDelivery">
+                                        <i class="bi bi-cash-stack fs-2 text-success me-2"></i>
+                                        <span class="fw-semibold">ক্যাশ অন ডেলিভারি</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Wallet Section -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-2">মোবাইল ওয়ালেট</h5>
+                            <p class="text-muted small mb-3">মোবাইল ওয়ালেট মাধ্যমে টাকা পরিশোধ করুন</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <div class="form-check d-flex align-items-center">
+                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Bkash" value="Bkash" style="width: 20px; height: 20px;">
+                                            <label class="form-check-label d-flex align-items-center" for="Bkash">
+                                                <img src="https://www.swadeshpratidin.com/2024/01/24/VP_1706094096.jpg" alt="bKash" style="height: 70px;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <div class="form-check d-flex align-items-center">
+                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Nagad" value="Nagad" style="width: 20px; height: 20px;">
+                                            <label class="form-check-label d-flex align-items-center" for="Nagad">
+                                                <img src="https://download.logo.wine/logo/Nagad/Nagad-Logo.wine.png" alt="Nagad" style="height: 70px;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <div class="form-check d-flex align-items-center">
+                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Rocket" value="Rocket" style="width: 20px; height: 20px;">
+                                            <label class="form-check-label d-flex align-items-center" for="Rocket">
+                                                <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" alt="Rocket" style="height: 70px;">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Debit/Credit Card Section -->
+                        <div class="mb-0">
+                            <h5 class="fw-bold mb-2">ডেবিট / ক্রেডিট কার্ড</h5>
+                            <p class="text-muted small mb-3">কার্ড এর মাধ্যমে টাকা পরিশোধ করুন</p>
+                            <div class="border rounded p-3">
+                                <div class="form-check d-flex align-items-center">
+                                    <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CardPayment" value="Card" style="width: 20px; height: 20px;">
+                                    <label class="form-check-label d-flex align-items-center flex-wrap" for="CardPayment">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" class="me-2" style="height: 25px;">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="me-2" style="height: 25px;">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" alt="Amex" class="me-2" style="height: 25px;">                   
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Confirm Payment Button -->
+            <div class="text-center">
+                <form asp-action="ConfirmOrder" asp-controller="Order" method="post" id="paymentForm">
+                    <input type="hidden" name="PaymentMethod" id="PaymentMethod" value="Bikash" />
+                    <input type="hidden" name="DeliveryCharge" id="DeliveryCharge" value="@insideDhakaCharge" />
+                    <button type="submit" class="btn btn-lg px-5 rounded-3 shadow-sm gradient-btn mt-3">
+                        <i class="bi bi-bag-check-fill me-2"></i>Pay Now
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-summary-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e5e5;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .order-summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+    .delivery-radio {
+        margin-right: 8px;
+    }
+
+    .payment-btn {
+        font-weight: 600;
+        transition: all 0.3s;
+        height: 70px;
+        font-size: 18px;
+    }
+
+        .payment-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+    .gradient-btn {
+        background: linear-gradient(135deg, #8a2be2, #6a0dad);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+    }
+
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .gradient-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(138, 43, 226, 0.3);
+        }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Payment method selection
+            $('.payment-btn').click(function () {
+                var method = $(this).data('method');
+                $('#PaymentMethod').val(method);
+                $('.payment-btn').removeClass('shadow-lg border border-2 border-primary');
+                $(this).addClass('shadow-lg border border-2 border-primary');
+            });
+
+            // Update grand total when delivery option changes
+            $('.delivery-radio').change(function () {
+                var delivery = parseInt($(this).val());
+                $('#DeliveryCharge').val(delivery);
+                var productTotal = @productTotal;
+                $('#grandTotal').text('৳' + (productTotal + delivery));
+            });
+        });
+
+        const cityAreas = {
+            Dhaka: ["Gulshan", "Dhanmondi", "Uttara", "Mirpur", "Banani", "Motijheel"],
+            Chattogram: ["Pahartali", "Panchlaish", "Double Mooring", "Kotwali", "Agrabad"],
+            Khulna: ["Daulatpur", "Sonadanga", "Khalishpur", "Khulna City"],
+            Rajshahi: ["Boalia", "Shah Mokhdum", "Rajpara"],
+            Barishal: ["Kawran Bazar", "Barishal Sadar", "Bakerganj"],
+            Sylhet: ["Subidbazar", "Zindabazar", "Shibgonj"],
+            Rangpur: ["Kallayanpur", "Rangpur City", "Gangachara"],
+            Mymensingh: ["Mymensingh Sadar", "Trishal", "Muktagachha"]
+        };
+
+        document.getElementById("City").addEventListener("change", function() {
+            const city = this.value;
+            const areaSelect = document.getElementById("Area");
+            areaSelect.innerHTML = '<option value="">Select Area</option>';
+            if (cityAreas[city]) {
+                cityAreas[city].forEach(area => {
+                    const option = document.createElement("option");
+                    option.value = area;
+                    option.text = area;
+                    areaSelect.appendChild(option);
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            // When user changes any payment method radio button
+            $('input[name="PaymentMethod"]').change(function () {
+                // Get the selected value (like Bkash, Nagad, Card, etc.)
+                let selectedPayment = $(this).val();
+
+                // Set the hidden field's value to match the selection
+                $('#PaymentMethod').val(selectedPayment);
+
+                // Optional: Highlight selected card visually
+                $('.border').removeClass('border-primary shadow-sm');
+                $(this).closest('.border').addClass('border-primary shadow-sm');
+            });
+        });
+    </script>
+}

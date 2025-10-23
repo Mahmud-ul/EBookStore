@@ -13,7 +13,7 @@ namespace EBookStore.Migrations
 {
     [DbContext(typeof(ConnectionString))]
     [Migration("20251019110851_update-cart")]
-    partial class updatecart
+    partial class UpdateCart
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -8,7 +8,11 @@ namespace EBookStore.Models
         
         public DateTime OrderDate { get; set; }
         public DateTime? StatusDate { get; set; }
-        public string Status { get; set; } = string.Empty; //Pending(waiting for payment), OnGoing, Canceled, Delivared
+        public string Status { get; set; } = string.Empty; //Pending(waiting for payment), OnGoing, Canceled, Delivered
+
+        //TotalAmount, Name, Phone, City, Area, FullAddress, PaymentMethod
+
+
         public int UserID { get; set; }
         [ForeignKey("UserID")]
         public virtual User? User { get; set; }

@@ -131,7 +131,6 @@
         <!-- 🛍️ Products -->
         <div class="col-md-9">
             <!-- 🔹 Applied Filters -->
-            <!-- 🔹 Applied Filters -->
             <div class="mb-3">
                 <h5>Applied Filters:</h5>
                 <div id="appliedFilters">
@@ -344,6 +343,7 @@
                                         {
                                             <span class="current-price">৳@product.Price</span>
                                         }
+                                    
                                     </div>
 
                                     <button class="btn-add-cart Cart" id="@product.ID" @(product.InStock || product.PreOrderable ? "" : "disabled")>
@@ -533,7 +533,6 @@
                                 opacity: 0.8;
                             }
                         </style>
-
                     }
   
                     @if (ViewBag.TotalPages > 1)
@@ -549,6 +548,7 @@
                             </ul>
                         </nav>
                     }
+                
                 </div>
             </div>
         </div>
@@ -619,7 +619,7 @@
                 var id = $(this).attr("id");
 
                 $.ajax({
-                    url: '@Url.Action("AddToCart", "Product")',
+                    url: '@Url.Action("AddToCart", "Cart")',
                     type: "POST",
                     data: { id: id },
                     success: function (response) {

@@ -160,5 +160,104 @@ namespace EBookStore.Controllers
         {
             return _context.Orders.Any(e => e.ID == id);
         }
+
+        [HttpGet]
+        public IActionResult PlaceOrder()
+        {
+            // Your order creation logic here
+
+            //Show the details including delivery charge and a payment button.
+            //on the payment, pay the amount via bikash, nagad etc. 
+            //If the payment success, Order placed and confirmed.
+            //cart list cleared.
+
+            int? userID = HttpContext.Session.GetInt32("UserID");
+            if (userID == null)
+            {
+                TempData["Error"] = "Please Login to Place order!";
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            IEnumerable<Cart> cart = _context.Carts.Where(w => w.UserID == userID).Include(i => i.Product).ToList();
+
+            return View(cart);
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmOrder(string PaymentMethod, int DeliveryCharge)
+        {
+            try
+            {
+                //Complete the payment here
+
+                //Create Order
+                int? userID = HttpContext.Session.GetInt32("UserID");
+
+                if (userID == null)
+                {
+                    TempData["Error"] = "Please Login to Place order!";
+
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    Order order = new Order
+                    {
+                        OrderDate = DateTime.Now,
+                        StatusDate = DateTime.Now,
+                        Status = "On Process",
+                        UserID = userID ?? 0
+                    };
+                    _context.Add(order);
+
+                    int save = _context.SaveChanges();
+                    if (save > 0)
+                    {
+                        int orderID = _context.Orders.Where(w => w.UserID == userID && w.OrderDate == order.OrderDate).Select(s => s.ID).FirstOrDefault();
+                        if (orderID > 0)
+                        {
+                            List<OrderProduct> orderProducts = new List<OrderProduct>();
+
+                            IEnumerable<Cart> cart = _context.Carts.Where(w => w.UserID == userID).Include(i => i.Product).ToList();
+
+                            foreach (Cart c in cart)
+                            {
+                                OrderProduct orp = new OrderProduct();
+                                orp.OrderID = orderID;
+                                orp.ProductID = c.ProductID;
+                                orp.Price = c.Product != null ? (c.Product.Price) - (c.Product.Discount ?? 0) : 0;
+                                orp.Quantity = c.Quantity;
+
+                                orderProducts.Add(orp);
+                            }
+                            _context.AddRange(orderProducts);
+                            _context.RemoveRange(cart);
+                            
+                            int save2 = _context.SaveChanges();
+                            if (save2 > 0)
+                            {
+                                TempData["Success"] = "Order placed successfully. Thank you for shopping with us!";
+                                HttpContext.Session.SetInt32("Cart", 0);
+                                return RedirectToAction("Index", "Home");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Something went wrong, Please try again later!\n Error: " + ex.Message;
+            }
+            TempData["Error"] = "Order Confirmation failed!";
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult OrderList()
+        {
+            return View();
+        }
     }
 }

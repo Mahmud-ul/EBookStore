@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Cart Management";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int grandTotal = 0;
 }
 
 <div class="container-fluid">
@@ -13,14 +14,19 @@
     </div>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body">           
             <table id="example" class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Product</th>
+                        <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                        <th>Price</th>
+                        <th>ActualPrice</th>
+                        <th>Discount</th>
+                        <th>Total</th>                       
                         <th>User</th>
                         <th>Email</th>
-                        <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                        
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -29,6 +35,7 @@
                     {
                         @foreach (var item in Model)
                         {
+                            {grandTotal += item.Product != null ? ((item.Product.Price - (item.Product.Discount ?? 0)) * item.Quantity) : 0;}
                             <tr>
                                 <td>
                                     <a asp-action="Details"
@@ -38,9 +45,13 @@
                                         @(item.Product?.Name ?? "N/A")
                                     </a>
                                 </td>
-                                <td>@(item.User?.Name ?? "N/A")</td>
-                                <td>@(item.User?.Email ?? "N/A")</td>
                                 <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
+                                <td>@(item.Product != null ? (item.Product.Price - (item.Product.Discount ?? 0)) : 0)</td>
+                                <td>@(item.Product != null ? item.Product.Price : 0)</td>
+                                <td>@(item.Product != null ? item.Product.Discount : 0)</td>
+                                <td>@(item.Product != null ? ((item.Product.Price - (item.Product.Discount ?? 0))*item.Quantity) : 0)</td>
+                                <td>@(item.User?.Name ?? "N/A")</td>
+                                <td>@(item.User?.Email ?? "N/A")</td>                               
                                 <td class="text-center">
                                     <a asp-action="Details"
                                        asp-route-id="@item.ID"
@@ -74,6 +85,15 @@
                         </tr>
                     }
                 </tbody>
+                <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td colspan="5" class="text-end">Grand Total:</td>
+                        <td>
+                            @grandTotal
+                        </td>
+                        <td colspan="3"></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

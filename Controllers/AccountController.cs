@@ -4,6 +4,7 @@ using EBookStore.Models.Database;
 using EBookStore.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace EBookStore.Controllers
 {
@@ -40,7 +41,12 @@ namespace EBookStore.Controllers
                 HttpContext.Session.SetString("UserType", matchedUser.UserType?.Name ?? "");
 
 
-                int cart = _db.Carts.Where(w => w.UserID == matchedUser.ID).Sum(s =>((s.Product != null ? (s.Product.Price - s.Product.Discount) : 0) * s.Quantity)) ?? 0;
+                int cart = _db.Carts
+                    .Where(w => w.UserID == matchedUser.ID)
+                    .Include(s => s.Product) // ensure Product is loaded
+                    .ToList() // switch to client-side evaluation
+                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
+
                 HttpContext.Session.SetInt32("Cart", cart);
 
                 return RedirectToAction("Index", "Home");
