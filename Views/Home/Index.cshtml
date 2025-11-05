@@ -22,22 +22,24 @@
 				<div class="main-slider pattern-overlay">
 					@if (SlideShow != null && SlideShow.Any())
 					{
-						foreach (var item in SlideShow)
+						@foreach (var item in SlideShow)
 						{
-							<div class="slider-item">
-								<div class="banner-content">
-									<h2 class="banner-title">@item.Name</h2>
-									<p>@item.Description</p>
-									<div class="btn-wrap">
-										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
-											Read More<i class="icon icon-ns-arrow-right"></i>
-										</a>
+							<text>
+								<div class="slider-item">
+									<div class="banner-content">
+										<h2 class="banner-title">@item.Name</h2>
+										<p>@item.Description</p>
+										<div class="btn-wrap">
+											<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
+												Read More<i class="icon icon-ns-arrow-right"></i>
+											</a>
+										</div>
+									</div>
+									<div style="max-width:600px;">
+										<img src="@item.Image" alt="banner" class="banner-image">
 									</div>
 								</div>
-								<div style="max-width:600px;">
-									<img src="@item.Image" alt="banner" class="banner-image">
-								</div>
-							</div>
+							</text>
 						}
 					}
 				</div>
@@ -356,7 +358,14 @@
 		});
 	</script>
 
-	
+	<script>
+		$(document).ready(function() {
+			// Auto-click the "next" button every 3 seconds
+			setInterval(function() {
+				$('.next.slick-arrow').click();
+			}, 5000);
+		});
+	</script>
 }
 
 
