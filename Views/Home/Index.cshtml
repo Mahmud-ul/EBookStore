@@ -6,7 +6,6 @@
 	var BestSeller = ViewBag.BestSeller as Product;
 	var Popular = ViewBag.Popular as IEnumerable<Product>;
 	var Discount = ViewBag.Discount as IEnumerable<Product>;
-
 	var Category = ViewBag.Category as IEnumerable<Category>;
 }
 
@@ -21,32 +20,27 @@
 				</button>
 
 				<div class="main-slider pattern-overlay">
-					@if(SlideShow != null && SlideShow.Any())
+					@if (SlideShow != null && SlideShow.Any())
 					{
 						foreach (var item in SlideShow)
 						{
 							<div class="slider-item">
 								<div class="banner-content">
 									<h2 class="banner-title">@item.Name</h2>
-									<p>
-										@item.Description
-									</p>
+									<p>@item.Description</p>
 									<div class="btn-wrap">
 										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
 											Read More<i class="icon icon-ns-arrow-right"></i>
 										</a>
 									</div>
-								</div><!--banner-content-->
+								</div>
 								<div style="max-width:600px;">
 									<img src="@item.Image" alt="banner" class="banner-image">
 								</div>
-								
 							</div>
-							<!--slider-item-->
 						}
-					}								
-
-				</div><!--slider-->
+					}
+				</div>
 
 				<button class="next slick-arrow">
 					<i class="icon icon-arrow-right"></i>
@@ -68,7 +62,7 @@
 						<a href="#"><img src="images/client-image4.png" alt="client"></a>
 						<a href="#"><img src="images/client-image5.png" alt="client"></a>
 					</div>
-				</div><!--image-holder-->
+				</div>
 			</div>
 		</div>
 	</div>
@@ -97,36 +91,31 @@
 										<figure class="product-style">
 											<img src="@item.Image" alt="Books" class="product-item">
 											<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item.ID">
-												Add to
-												Cart
+												Add to Cart
 											</button>
 										</figure>
 										<figcaption>
 											<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" style="text-decoration:none;">@item.Name</a></h3>
-											<span>@(item.Author!=null? item.Author.Name : "N/A")</span>
+											<span>@(item.Author != null ? item.Author.Name : "N/A")</span>
 											<div class="item-price">BDT @item.Price</div>
 										</figcaption>
 									</div>
 								</div>
 							}
 						}
+					</div>
+				</div>
 
-					</div><!--ft-books-slider-->
-				</div><!--grid-->
-
-
-			</div><!--inner-content-->
+			</div>
 		</div>
 
 		<div class="row">
 			<div class="col-md-12">
-
 				<div class="btn-wrap align-right">
 					<a asp-action="ProductList" asp-controller="Product" asp-route-featured="True" class="btn-accent-arrow">
 						View all products <i class="icon icon-ns-arrow-right"></i>
 					</a>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -136,9 +125,7 @@
 	<div class="corner-pattern-overlay"></div>
 	<div class="container">
 		<div class="row justify-content-center">
-
 			<div class="col-md-8">
-
 				<div class="row">
 					@if (BestSeller != null)
 					{
@@ -147,16 +134,13 @@
 								<img src="@BestSeller.Image" alt="book" class="single-image">
 							</figure>
 						</div>
-
 						<div class="col-md-6">
 							<div class="product-entry">
 								<h2 class="section-title divider">Best Selling Book</h2>
 								<div class="products-content">
-								<div class="author-name">By @(BestSeller.Author!= null? BestSeller.Author.Name : "N/A")</div>
+									<div class="author-name">By @(BestSeller.Author != null ? BestSeller.Author.Name : "N/A")</div>
 									<h3 class="item-title">@BestSeller.Name</h3>
-									<p>
-										@BestSeller.Description
-									</p>
+									<p>@BestSeller.Description</p>
 									<div class="item-price">BDT @BestSeller.Price</div>
 									<div class="btn-wrap">
 										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@BestSeller.ID" class="btn-accent-arrow">
@@ -167,12 +151,8 @@
 							</div>
 						</div>
 					}
-
 				</div>
-				<!-- / row -->
-
 			</div>
-
 		</div>
 	</div>
 </section>
@@ -183,9 +163,7 @@
 			<div class="col-md-12">
 
 				<div class="section-header align-center">
-					<div class="title">
-						<span>Some quality items</span>
-					</div>
+					<div class="title"><span>Some quality items</span></div>
 					<h2 class="section-title">Popular Books</h2>
 				</div>
 
@@ -193,11 +171,12 @@
 					@if (Category != null && Category.Any())
 					{
 						<li data-tab-target="#all-genre" class="active tab">All Genre</li>
-						foreach(var i in Category)
+						foreach (var i in Category)
 						{
 							<li data-tab-target="#@i.Name" class="tab">@i.Name</li>
 						}
-					}									
+					}
+
 				</ul>
 
 				<div class="tab-content">
@@ -212,21 +191,20 @@
 											<figure class="product-style">
 												<img src="@item2.Image" alt="Books" class="product-item">
 												<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item2.ID">
-													Add to
-													Cart
+													Add to Cart
 												</button>
 											</figure>
 											<figcaption>
 												<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item2.ID" style="text-decoration:none;">@item2.Name</a></h3>
-												<span>@(item2.Author != null? item2.Author.Name : "N/A")</span>
+												<span>@(item2.Author != null ? item2.Author.Name : "N/A")</span>
 												<div class="item-price">BDT @item2.Price</div>
 											</figcaption>
 										</div>
 									</div>
 								}
 							</div>
-
 						</div>
+
 						foreach (var item in Category)
 						{
 							<div id="@item.Name" data-tab-content>
@@ -240,8 +218,7 @@
 													<figure class="product-style">
 														<img src="@item2.Image" alt="Books" class="product-item">
 														<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item2.ID">
-															Add to
-															Cart
+															Add to Cart
 														</button>
 													</figure>
 													<figcaption>
@@ -251,17 +228,15 @@
 													</figcaption>
 												</div>
 											</div>
-										}	
+										}
 									}
 								</div>
 							</div>
 						}
 					}
-
 				</div>
 
-			</div><!--inner-tabs-->
-
+			</div>
 		</div>
 	</div>
 </section>
@@ -270,21 +245,15 @@
 	<div class="inner-content">
 		<h2 class="section-title divider">Quote of the day</h2>
 		<blockquote data-aos="fade-up">
-			<q>
-				“The more that you read, the more things you will know. The more that you learn, the more places
-				you’ll go.”
-			</q>
+			<q>“The more that you read, the more things you will know. The more that you learn, the more places you’ll go.”</q>
 			<div class="author-name">Dr. Seuss</div>
 		</blockquote>
 	</div>
 </section>
 
 <section id="special-offer" class="bookshelf pb-5 mb-5">
-
 	<div class="section-header align-center">
-		<div class="title">
-			<span>Grab your opportunity</span>
-		</div>
+		<div class="title"><span>Grab your opportunity</span></div>
 		<h2 class="section-title">Books with offer</h2>
 	</div>
 
@@ -301,24 +270,22 @@
 									<figure class="product-style">
 										<img src="@item.Image" alt="Books" class="product-item">
 										<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item.ID">
-											Add to
-											Cart
+											Add to Cart
 										</button>
 									</figure>
 									<figcaption>
 										<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" style="text-decoration:none;">@item.Name</a></h3>
-
 										<span>@(item.Author != null ? item.Author.Name : "N/A")</span>
 										<div class="item-price">
-											<span class="prev-price">BDT @item.Price</span>BDT @(item.Price-item.Discount)
+											<span class="prev-price">BDT @item.Price</span>BDT @(item.Price - item.Discount)
 										</div>
 									</figcaption>
 								</div>
 							}
 						}
-					</div><!--grid-->
+					</div>
 				</div>
-			</div><!--inner-content-->
+			</div>
 		</div>
 	</div>
 </section>
@@ -326,27 +293,72 @@
 @section Scripts {
 	<script>
 		jQuery(document).ready(function(){
+
+			function showNotification(message, type) {
+				var $notif = $("#cartNotification");
+				$notif.stop(true, true);
+				$notif.text(message);
+
+				if(type === 'success') {
+					$notif.css('background-color', '#28a745'); // green
+				} else if(type === 'info') {
+					$notif.css('background-color', '#17a2b8'); // blue
+				} else if(type === 'error') {
+					$notif.css('background-color', '#dc3545'); // red
+				}
+
+				$notif.fadeIn(400).delay(2000).fadeOut(400);
+			}
+
 			jQuery(".Cart").click(function(){
-				var id = $(this).attr("id");
-				//alert("successfully clicked! " + id);
+				var $btn = $(this);
+				var originalText = $btn.text();
+				var originalColor = $btn.css('background-color');
+				var id = $btn.attr("id");
+
 				$.ajax({
 					url:'@Url.Action("AddToCart", "Cart")',
 					type: "POST",
 					data:{id: id},
 					success:function(response){
 						if (response.success) {
-							alert(response.message); // Item added to cart!
-						$("#cart").text("Cart: (BDT " + response.totalCart + ")");
-						}	 
-						else {
-							alert(response.message);
+							$("#cart").text("Cart: (BDT " + response.totalCart + ")");
+							showNotification("Item added to cart!", "success");
+
+							$btn.text("Added!").css('background-color', '#28a745').prop("disabled", true);
+						} else if(response.requiresLogin) {
+							showNotification("Please log in to add items!", "info");
+
+							$btn.text("Login Required").css('background-color', '#ffc107').prop("disabled", true);
+						} else {
+							showNotification(response.message, "info");
+
+							$btn.text("Already in Cart").css('background-color', '#17a2b8').prop("disabled", true);
 						}
+
+						// Reset button after 2 seconds
+						setTimeout(function(){
+							$btn.text(originalText).css('background-color', originalColor).prop("disabled", false);
+						}, 2000);
 					},
 					error:function(xhr, status, error){
 						console.error("Error:", error);
+						showNotification("Something went wrong!", "error");
+
+						$btn.text("Error!").css('background-color', '#dc3545').prop("disabled", true);
+						setTimeout(function(){
+							$btn.text(originalText).css('background-color', originalColor).prop("disabled", false);
+						}, 2000);
 					}
 				});
 			});
-		});	
+
+		});
 	</script>
+
+	
 }
+
+
+
+

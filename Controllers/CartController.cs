@@ -138,7 +138,6 @@ namespace EBookStore.Controllers
             var carts = _context.Carts.Where(w=>w.UserID == HttpContext.Session.GetInt32("UserID")).Include(c => c.Product).Include(c => c.User);
             return View(await carts.ToListAsync());
         }
-
         [HttpPost]
         public IActionResult AddToCart(int id)
         {
@@ -147,7 +146,7 @@ namespace EBookStore.Controllers
             if (userID == null || userID == 0)
             {
                 // Return JSON response indicating login is required
-                return Json(new { success = false, message = "Please log in to add items to your cart." });
+                return Json(new { success = false, requiresLogin = true, message = "Please log in to add items to your cart." });
             }
 
             bool exist = _context.Carts.Where(w => w.UserID == userID && w.ProductID == id).Any();
@@ -166,8 +165,8 @@ namespace EBookStore.Controllers
 
             int totalCart = _context.Carts
                     .Where(w => w.UserID == userID)
-                    .Include(s => s.Product) // ensure Product is loaded
-                    .ToList() // switch to client-side evaluation
+                    .Include(s => s.Product)
+                    .ToList()
                     .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
 
             HttpContext.Session.SetInt32("Cart", totalCart);
@@ -177,7 +176,7 @@ namespace EBookStore.Controllers
                 return Json(new { success = true, message = "Item added to cart!", totalCart });
             }
             else
-                return Json(new { message = "Failed to save" });
+                return Json(new { success = false, message = "Failed to save" });
         }
 
         [HttpPost]

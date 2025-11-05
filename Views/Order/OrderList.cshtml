@@ -1,4 +1,4 @@
-﻿@model IEnumerable<EBookStore.Models.Order>
+﻿@model IEnumerable<EBookStore.Models.OrderProduct>
 @{
     ViewData["Title"] = "My Orders";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -30,9 +30,9 @@
                             @foreach (var order in Model)
                             {
                                 <tr>
-                                    <td><span class="fw-semibold">Order-@(10000 + order.ID)</span></td>
+                                    @*<td><span class="fw-semibold">Order-@(10000 + order.ID)</span></td>
                                     <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
-                                    @* <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
+                                    <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
                                     <td>
                                         @if (order.PaymentMethod == "CashOnDelivery")
                                         {
@@ -54,7 +54,7 @@
                                         {
                                             <span class="badge bg-primary"><i class="bi bi-credit-card-2-front me-1"></i>Card</span>
                                         }
-                                    </td> *@
+                                    </td> 
                                     <td>
                                         @if (order.Status == "Pending")
                                         {
@@ -73,7 +73,7 @@
                                             <span class="badge bg-danger">Cancelled</span>
                                         }
                                     </td>
-                                    @* <td class="text-center">
+                                    <td class="text-center">
                                         <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm rounded-circle me-2" data-bs-toggle="tooltip" title="View Details">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>

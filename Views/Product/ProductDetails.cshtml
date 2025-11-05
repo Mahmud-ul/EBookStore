@@ -958,40 +958,59 @@
 
             // Add to Cart with AJAX
             $('#addToCartBtn').click(function () {
-                var productId = $(this).data('product-id');
+                var $btn = $(this);
+                var productId = $btn.data('product-id');
                 var quantity = parseInt($('#quantity').val());
 
                 $.ajax({
                     url: '@Url.Action("AddToCart", "Cart")',
                     type: "POST",
-                    data: { 
+                    data: {
                         id: productId,
-                        quantity: quantity 
+                        quantity: quantity
                     },
                     beforeSend: function() {
-                        $('#addToCartBtn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Adding...');
+                        $btn.prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2"></span>Adding...')
+                            .css({ 'background': '#17a2b8', 'color': '#fff', 'border': '1px solid #17a2b8' });
                     },
                     success: function (response) {
+                        // Determine message and color
+                        var message = '';
+                        var bgColor = '';
+                        var textColor = '#fff';
+
                         if (response.success) {
-                            // Success feedback
-                            $('#addToCartBtn').html('<i class="bi bi-check-circle-fill"></i> Added to Cart!');
-                            
-                            // Update cart display
+                            message = '✔️ Added to Cart!';
+                            bgColor = '#28a745'; // green
                             $("#cart").text("Cart: (BDT " + response.totalCart + ")");
-                            
-                            // Reset button after 2 seconds
-                            setTimeout(function() {
-                                $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
-                            }, 2000);
+                        } else if (response.message === "Please log in to add items to your cart.") {
+                            message = 'Login required!';
+                            bgColor = '#ffc107'; // yellow
+                            textColor = '#212529';
                         } else {
-                            alert(response.message);
-                            $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
+                            message = response.message;
+                            bgColor = '#17a2b8'; // info blue
                         }
+
+                        $btn.html(message).css({ 'background': bgColor, 'color': textColor, 'border': '1px solid ' + bgColor });
+
+                        // Reset button after 2 seconds
+                        setTimeout(function() {
+                            $btn.prop('disabled', false)
+                                .html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>')
+                                .css({ 'background': '', 'color': '', 'border': '' });
+                        }, 2000);
                     },
                     error: function (xhr, status, error) {
                         console.error("Error:", error);
-                        alert("Failed to add book to cart. Please try again.");
-                        $('#addToCartBtn').prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>');
+                        $btn.html('Error!').css({ 'background': '#dc3545', 'color': '#fff', 'border': '1px solid #dc3545' });
+
+                        setTimeout(function() {
+                            $btn.prop('disabled', false)
+                                .html('<i class="bi bi-cart-plus-fill"></i><span>ADD TO CART</span>')
+                                .css({ 'background': '', 'color': '', 'border': '' });
+                        }, 2000);
                     }
                 });
             });
@@ -1000,10 +1019,10 @@
             $('.preview-page-thumb').click(function() {
                 var imageUrl = $(this).data('image');
                 var pageNum = $(this).data('page');
-                
+
                 $('#modalPageImage').attr('src', imageUrl);
                 $('#pageModalLabel').text('Page ' + pageNum);
-                
+
                 var pageModal = new bootstrap.Modal(document.getElementById('pageModal'));
                 pageModal.show();
             });

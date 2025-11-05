@@ -75,6 +75,38 @@ namespace EBookStore.Controllers
         }
 
         [HttpGet]
+        public IActionResult Signup()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Signup(User user)
+        {
+            user.UserTypeID = _db.UserTypes.Where(w => w.Name == "User").Select(s => s.ID).FirstOrDefault();
+            user.Status = true;
+            if (user.UserTypeID > 0)
+            {
+                if (user.Password != user.ConfirmPassword)
+                {
+                    TempData["Error"] = "Password and Confirm Password aren't Matching!!!";
+                    return View();
+                }
+
+                _db.Users.Add(user);
+                int save = _db.SaveChanges();
+
+                if (save > 0)
+                {
+                    TempData["Success"] = "User Signup Successful. Please login!";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            TempData["Error"] = "Failed to Save Information!!!";
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();

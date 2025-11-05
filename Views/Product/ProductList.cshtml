@@ -576,7 +576,7 @@
                         var newContent = $(data).find('#productListContainer').html();
                         $('#productListContainer').html(newContent);
 
-                        // ✅ (Optional) also update applied filters if you have that section
+                        // ✅ Update applied filters section
                         var newFilters = $(data).find('#appliedFilters').html();
                         if (newFilters) {
                             $('#appliedFilters').html(newFilters);
@@ -588,7 +588,7 @@
                 });
             }
 
-            // 🔹 Pagination handler (must be outside loadFilteredProducts)
+            // 🔹 Pagination handler
             $(document).on('click', '.pagination-link', function (e) {
                 e.preventDefault();
                 var page = $(this).data('page');
@@ -614,27 +614,89 @@
                 loadFilteredProducts();
             });
 
+            // 🔹 Add-to-Cart notification helper
+            var currentCartId = 0; // Track which button was clicked
+
+            function showCartNotification(message, type) {
+                var $btn = $('.Cart#' + currentCartId);
+                if (!$btn.length) return;
+
+                // Remove previous tooltip if exists
+                $btn.tooltip('dispose');
+
+                // Save original text
+                var originalText = $btn.text();
+
+                // Show message with optional checkmark icon
+                var icon = '';
+                if (type === 'success') icon = '✔️ ';
+
+                $btn.text(icon + message);
+
+                // Reset previous styles first
+                $btn.css({ 'background': '', 'color': '', 'border': '' });
+
+                // Apply color based on type
+                if (type === 'success') {
+                    $btn.css({
+                        'background': '#28a745',
+                        'color': '#fff',
+                        'border': '1px solid #28a745'
+                    });
+                } else if (type === 'info') {
+                    $btn.css({
+                        'background': '#17a2b8',
+                        'color': '#fff',
+                        'border': '1px solid #17a2b8'
+                    });
+                } else if (type === 'warning') {
+                    $btn.css({
+                        'background': '#ffc107',
+                        'color': '#212529',
+                        'border': '1px solid #ffc107'
+                    });
+                } else {
+                    $btn.css({
+                        'background': '#dc3545',
+                        'color': '#fff',
+                        'border': '1px solid #dc3545'
+                    });
+                }
+
+                // Revert button back to original state after 2 seconds
+                setTimeout(function () {
+                    $btn.text(originalText);
+                    $btn.css({ 'background': '', 'color': '', 'border': '' });
+                }, 2000);
+            }
+
             // 🔹 Add to Cart AJAX
             $(document).on("click", ".Cart", function () {
-                var id = $(this).attr("id");
+                currentCartId = $(this).attr("id");
 
                 $.ajax({
                     url: '@Url.Action("AddToCart", "Cart")',
                     type: "POST",
-                    data: { id: id },
+                    data: { id: currentCartId },
                     success: function (response) {
                         if (response.success) {
-                            alert(response.message);
                             $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                            showCartNotification("Added to cart!", "success");
+                        } else if (response.message === "Please log in to add items to your cart.") {
+                            showCartNotification("Login required!", "warning");
                         } else {
-                            alert(response.message);
+                            showCartNotification(response.message, "info");
                         }
                     },
                     error: function (xhr, status, error) {
                         console.error("Error:", error);
+                        showCartNotification("Something went wrong!", "error");
                     }
                 });
             });
+
         });
     </script>
 }
+
+
