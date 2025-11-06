@@ -346,8 +346,20 @@
                                     
                                     </div>
 
-                                    <button class="btn-add-cart Cart" id="@product.ID" @(product.InStock || product.PreOrderable ? "" : "disabled")>
-                                        @(product.InStock || product.PreOrderable ? "ADD TO CART" : "OUT OF STOCK")
+                                    <button class="btn-add-cart Cart" id="@product.ID"
+                                            @(product.InStock || product.PreOrderable ? "" : "disabled")>
+                                        @if (product.InStock)
+                                        {
+                                            @:ADD TO CART
+                                        }
+                                        else if (product.PreOrderable)
+                                        {
+                                            <span style="color: #593399"><i>PREORDER</i></span>
+                                        }
+                                        else
+                                        {
+                                            @:OUT OF STOCK
+                                        }
                                     </button>
                                 </div>
                             </div>

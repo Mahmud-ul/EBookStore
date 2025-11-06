@@ -1,55 +1,74 @@
 ﻿@model EBookStore.Models.Payment
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Payment";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Card header -->
+        <div class="card-header text-white rounded-top-4" style="background: linear-gradient(90deg, #0d6efd, #6610f2);">
+            <h4 class="mb-0"><i class="bi bi-currency-dollar me-2"></i> Edit Payment</h4>
+        </div>
 
-<h4>Payment</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
-            <div class="form-group">
-                <label asp-for="PaymentDate" class="control-label"></label>
-                <input asp-for="PaymentDate" class="form-control" />
-                <span asp-validation-for="PaymentDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderID" class="control-label"></label>
-                <select asp-for="OrderID" class="form-control" asp-items="ViewBag.OrderID"></select>
-                <span asp-validation-for="OrderID" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DelivaryCharge" class="control-label"></label>
-                <input asp-for="DelivaryCharge" class="form-control" />
-                <span asp-validation-for="DelivaryCharge" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalAmount" class="control-label"></label>
-                <input asp-for="TotalAmount" class="form-control" />
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Extra" class="control-label"></label>
-                <input asp-for="Extra" class="form-control" />
-                <span asp-validation-for="Extra" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <!-- Card body -->
+        <div class="card-body p-4">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="ID" />
+
+                <!-- Payment Date -->
+                <div class="mb-3">
+                    <label asp-for="PaymentDate" class="form-label fw-semibold">Date of Payment</label>
+                    <input asp-for="PaymentDate" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="PaymentDate" class="text-danger"></span>
+                </div>
+
+                <!-- Order -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Order</label>
+                    <select asp-for="OrderID" class="form-control rounded shadow-sm" asp-items="ViewBag.OrderID"></select>
+                    <span asp-validation-for="OrderID" class="text-danger"></span>
+                </div>
+
+                <!-- Delivery Charge -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Delivary Charge</label>
+                    <input asp-for="DelivaryCharge" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="DelivaryCharge" class="text-danger"></span>
+                </div>
+
+                <!-- Total Amount -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Total Amount</label>
+                    <input asp-for="TotalAmount" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                </div>
+
+                <!-- Extra -->
+                <div class="mb-3">
+                    <label asp-for="Extra" class="form-label fw-semibold"></label>
+                    <input asp-for="Extra" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="Extra" class="text-danger"></span>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-3 mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-save2-fill me-1"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

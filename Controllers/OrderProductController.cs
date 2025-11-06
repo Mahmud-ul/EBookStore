@@ -27,9 +27,9 @@ namespace EBookStore.Controllers
         }
 
         // GET: OrderProduct/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? orderID, int? productID)
         {
-            if (id == null)
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
@@ -37,7 +37,7 @@ namespace EBookStore.Controllers
             var orderProduct = await _context.OrderProducts
                 .Include(o => o.Order)
                 .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
+                .FirstOrDefaultAsync(m => m.OrderID == orderID && m.ProductID == productID);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -73,14 +73,14 @@ namespace EBookStore.Controllers
         }
 
         // GET: OrderProduct/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? orderID, int? productID)
         {
-            if (id == null)
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
 
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
+            var orderProduct = await _context.OrderProducts.Where(w=>w.ProductID == productID && w.OrderID == orderID).FirstOrDefaultAsync();
             if (orderProduct == null)
             {
                 return NotFound();
@@ -128,9 +128,9 @@ namespace EBookStore.Controllers
         }
 
         // GET: OrderProduct/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? orderID, int? productID)
         {
-            if (id == null)
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
@@ -138,7 +138,7 @@ namespace EBookStore.Controllers
             var orderProduct = await _context.OrderProducts
                 .Include(o => o.Order)
                 .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
+                .FirstOrDefaultAsync(m => m.OrderID == orderID && m.ProductID == productID);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -147,12 +147,9 @@ namespace EBookStore.Controllers
             return View(orderProduct);
         }
 
-        // POST: OrderProduct/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? orderID, int? productID)
         {
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
+            var orderProduct = await _context.OrderProducts.Where(w => w.ProductID == productID && w.OrderID == orderID).FirstOrDefaultAsync();
             if (orderProduct != null)
             {
                 _context.OrderProducts.Remove(orderProduct);

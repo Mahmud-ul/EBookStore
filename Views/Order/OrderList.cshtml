@@ -1,4 +1,5 @@
-﻿@model IEnumerable<EBookStore.Models.OrderProduct>
+﻿@model IEnumerable<EBookStore.Models.Order>
+
 @{
     ViewData["Title"] = "My Orders";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -6,9 +7,11 @@
 
 <div class="container my-5">
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
-            <h3 class="mb-0"><i class="bi bi-bag-check-fill me-2"></i>My Orders</h3>
-            <span class="text-white-50 small">All your placed orders are listed below</span>
+        <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center rounded-top">
+            <h3 class="mb-0">
+                <i class="bi bi-bag-check-fill me-2"></i>My Orders
+            </h3>
+            <span class="small text-white-50">View and track your placed orders</span>
         </div>
 
         <div class="card-body">
@@ -20,6 +23,7 @@
                             <tr>
                                 <th>Order No.</th>
                                 <th>Date</th>
+                                <th>Customer</th>
                                 <th>Total</th>
                                 <th>Payment</th>
                                 <th>Status</th>
@@ -30,57 +34,110 @@
                             @foreach (var order in Model)
                             {
                                 <tr>
-                                    @*<td><span class="fw-semibold">Order-@(10000 + order.ID)</span></td>
+                                    <td><span class="fw-semibold">#@(10000 + order.ID)</span></td>
                                     <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
-                                    <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
                                     <td>
-                                        @if (order.PaymentMethod == "CashOnDelivery")
-                                        {
-                                            <span class="badge bg-secondary"><i class="bi bi-cash me-1"></i>COD</span>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-semibold">@order.Name</span>
+                                            <small class="text-muted">@order.Phone</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">
+                                            ৳@order.TotalAmount
+                                        </span>
+                                        <br />
+                                        <small class="text-muted">+ ৳@order.DeliveryCharge delivery</small>
+                                    </td>
+
+                                    <td>
+                                        @{
+                                            string paymentText = "";
+                                            string badgeClass = "badge rounded-pill px-3 py-2 fw-semibold shadow-sm border";
+                                            string iconClass = "";
+
+                                            switch (order.PaymentMethod)
+                                            {
+                                                case "CashOnDelivery":
+                                                    paymentText = "Cash on Delivery";
+                                                    badgeClass += " bg-light text-dark border-secondary";
+                                                    iconClass = "bi bi-cash-stack me-1 text-success";
+                                                    break;
+
+                                                case "Bkash":
+                                                    paymentText = "bKash";
+                                                    badgeClass += " bg-danger text-white border-0";
+                                                    iconClass = "bi bi-phone-fill me-1 text-white";
+                                                    break;
+
+                                                case "Nagad":
+                                                    paymentText = "Nagad";
+                                                    badgeClass += " bg-warning text-dark border-0";
+                                                    iconClass = "bi bi-wallet2 me-1";
+                                                    break;
+
+                                                case "Rocket":
+                                                    paymentText = "Rocket";
+                                                    badgeClass += " bg-info text-dark border-0";
+                                                    iconClass = "bi bi-send-fill me-1";
+                                                    break;
+
+                                                default:
+                                                    paymentText = "Card";
+                                                    badgeClass += " bg-primary text-white border-0";
+                                                    iconClass = "bi bi-credit-card-2-front me-1";
+                                                    break;
+                                            }
                                         }
-                                        else if (order.PaymentMethod == "Bkash")
-                                        {
-                                            <span class="badge bg-pink"><i class="bi bi-phone-fill me-1"></i>bKash</span>
-                                        }
-                                        else if (order.PaymentMethod == "Nagad")
-                                        {
-                                            <span class="badge bg-warning text-dark"><i class="bi bi-wallet2 me-1"></i>Nagad</span>
-                                        }
-                                        else if (order.PaymentMethod == "Rocket")
-                                        {
-                                            <span class="badge bg-info text-dark"><i class="bi bi-send-fill me-1"></i>Rocket</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-primary"><i class="bi bi-credit-card-2-front me-1"></i>Card</span>
-                                        }
-                                    </td> 
+
+                                        <span class="@badgeClass" data-bs-toggle="tooltip" title="@paymentText">
+                                            <i class="@iconClass"></i>@paymentText
+                                        </span>
+
+                                    </td>
+
                                     <td>
                                         @if (order.Status == "Pending")
                                         {
-                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
                                         }
-                                        else if (order.Status == "Processing")
+                                        else if (order.Status == "On Process")
                                         {
-                                            <span class="badge bg-info text-dark">Processing</span>
+                                            <span class="badge bg-info text-dark"><i class="bi bi-truck me-1"></i>On Process</span>
                                         }
                                         else if (order.Status == "Delivered")
                                         {
-                                            <span class="badge bg-success">Delivered</span>
+                                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Delivered</span>
                                         }
-                                        else if (order.Status == "Cancelled")
+                                        else if (order.Status == "Canceled")
                                         {
-                                            <span class="badge bg-danger">Cancelled</span>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>Canceled</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Unknown</span>
                                         }
                                     </td>
+
                                     <td class="text-center">
-                                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm rounded-circle me-2" data-bs-toggle="tooltip" title="View Details">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-                                        <a asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-outline-success btn-sm rounded-circle" data-bs-toggle="tooltip" title="Download Invoice">
-                                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                                        </a>
-                                    </td> *@
+                                        <div class="d-flex justify-content-center gap-2">
+
+                                            <!-- View Details Button -->
+                                            <a asp-action="OrderDetail" asp-route-id="@order.ID"
+                                               class="btn btn-outline-info btn-sm px-3 shadow-sm action-btn"
+                                               data-bs-toggle="tooltip" title="View Details">
+                                                <i class="bi bi-eye-fill me-1"></i> View
+                                            </a>
+
+                                            <!-- Download Invoice Button -->
+                                            @* <a asp-action="Invoice" asp-route-id="@order.ID"
+                                               class="btn btn-outline-warning btn-sm px-3 shadow-sm action-btn"
+                                               data-bs-toggle="tooltip" title="Download Invoice">
+                                                <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Invoice
+                                            </a> *@
+                                        </div>
+                                    </td>
+
                                 </tr>
                             }
                         </tbody>

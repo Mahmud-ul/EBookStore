@@ -45,6 +45,31 @@ namespace EBookStore.Controllers
             return View(order);
         }
 
+        public async Task<IActionResult> StatusUpdate(int? id, string status)
+        {
+            Order? order = await _context.Orders.FindAsync(id);
+
+            if(order == null)
+            {
+                TempData["Error"] = "Unable to find order. Please try again later!";
+                return RedirectToAction("Index");
+            }
+
+            order.Status = status;
+
+            _context.Update(order);
+
+            int save = await _context.SaveChangesAsync();
+
+            if(save>0)
+            {
+                TempData["Success"] = "Order status updated!";
+                return RedirectToAction("Details", "Order", new { id });
+            }
+            TempData["Error"] = "Something went wrong, unable to update";
+            return RedirectToAction("Index");
+        }
+
         // GET: Order/Create
         public IActionResult Create()
         {
@@ -273,9 +298,29 @@ namespace EBookStore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            IEnumerable<OrderProduct> orderProducts = await _context.OrderProducts.Where(w=> w.Order != null && w.Order.UserID == userID).Include(i=>i.Order).Include(i=>i.Product).ToListAsync(); 
+            IEnumerable<Order> orders = await _context.Orders.Where(w=> w.UserID == userID).ToListAsync(); 
             
-            return View(orderProducts);
+            return View(orders);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderDetail(int id)
+        {
+            Order? order = await _context.Orders.Where(w => w.ID == id).FirstOrDefaultAsync();
+
+            if(order!= null)
+            {
+                IEnumerable<OrderProduct> products = await _context.OrderProducts.Where(w => w.OrderID == id).Include(i => i.Product).ToListAsync();
+
+                ViewBag.Order = order;
+                ViewBag.Products = products;
+
+                return View();
+            }
+
+            TempData["Error"] = "Order not Found. Please try again later!";
+
+            return RedirectToAction("OrderList", "Order");
         }
     }
 }
