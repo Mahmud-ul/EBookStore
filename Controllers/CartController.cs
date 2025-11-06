@@ -22,6 +22,9 @@ namespace EBookStore.Controllers
         // GET: Cart
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var carts = _context.Carts.Include(c => c.Product).Include(c => c.User);
             return View(await carts.ToListAsync());
         }
@@ -30,6 +33,9 @@ namespace EBookStore.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -51,6 +57,9 @@ namespace EBookStore.Controllers
         // GET: Cart/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["ProductID"] = new SelectList(_context.Products, "ID", "Name");
             ViewData["UserID"] = new SelectList(_context.Users, "ID", "Email");
             return View();
@@ -61,6 +70,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductID,UserID,Quantity")] Cart cart)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(cart);
@@ -75,6 +87,9 @@ namespace EBookStore.Controllers
         // GET: Cart/Edit?userID=5&productID=10
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -98,6 +113,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProductID,UserID,Quantity")] Cart cart)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != cart.ID)
             {
                 return NotFound();

@@ -22,6 +22,9 @@ namespace EBookStore.Controllers
         // GET: Order
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.Orders.Include(o => o.User);
             return View(await connectionString.ToListAsync());
         }
@@ -29,6 +32,9 @@ namespace EBookStore.Controllers
         // GET: Order/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -47,6 +53,9 @@ namespace EBookStore.Controllers
 
         public async Task<IActionResult> StatusUpdate(int? id, string status)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             Order? order = await _context.Orders.FindAsync(id);
 
             if(order == null)
@@ -73,6 +82,9 @@ namespace EBookStore.Controllers
         // GET: Order/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["UserID"] = new SelectList(_context.Users, "ID", "Email");
             return View();
         }
@@ -84,6 +96,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(order);
@@ -97,6 +112,9 @@ namespace EBookStore.Controllers
         // GET: Order/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -118,6 +136,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != order.ID)
             {
                 return NotFound();
@@ -150,6 +171,9 @@ namespace EBookStore.Controllers
         // GET: Order/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -171,6 +195,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
