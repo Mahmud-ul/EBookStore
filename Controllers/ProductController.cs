@@ -114,7 +114,7 @@ namespace EBookStore.Controllers
                             product.Image.CopyTo(stream);
                         }
 
-                        imagePath = "/Image/product/" + fileName; // Relative path for <img src="">
+                        imagePath = "/Image/Product/" + fileName; // Relative path for <img src="">
                     }
 
                     Product product2 = new Product

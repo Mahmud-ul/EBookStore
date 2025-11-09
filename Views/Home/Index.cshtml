@@ -28,7 +28,7 @@
 								<div class="slider-item">
 									<div class="banner-content">
 										<h2 class="banner-title">@item.Name</h2>
-										<p>@item.Description</p>
+										<p>@(item.Description?.Length > 150 ? item.Description.Substring(0, 150) + "..." : item.Description)</p>
 										<div class="btn-wrap">
 											<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
 												Read More<i class="icon icon-ns-arrow-right"></i>
@@ -36,7 +36,7 @@
 										</div>
 									</div>
 									<div style="max-width:600px;">
-										<img src="@item.Image" alt="banner" class="banner-image">
+										<img src="@item.Image" alt="banner" width="350" class="banner-image">
 									</div>
 								</div>
 							</text>
@@ -367,7 +367,3 @@
 		});
 	</script>
 }
-
-
-
-

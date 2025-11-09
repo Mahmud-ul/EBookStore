@@ -1,4 +1,4 @@
-using EBookStore.Models.Database;
+﻿using EBookStore.Models.Database;
 using EBookStore.Utility;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +22,8 @@ builder.Services.AddSession(option =>
 });
 
 var app = builder.Build();
+
+app.UseStaticFiles(); // ✅ This must exist before UseRouting/UseAuthorization
 
 //Session-2
 app.UseSession();

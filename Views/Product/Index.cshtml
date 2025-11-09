@@ -66,7 +66,7 @@
                                     <td>@item.Discount</td>
                                     <td>@item.PageQuantity</td>
                                     <td>@item.Topic</td>
-                                    <td>@item.Description</td>
+                                    <td>@(item.Description?.Length > 20 ? item.Description.Substring(0, 20) + "..." : item.Description)</td>
                                     <td>
                                         <span class="badge @(item.Featured ? "bg-success" : "bg-danger")">
                                             @(item.Featured ? "Yes" : "No")
