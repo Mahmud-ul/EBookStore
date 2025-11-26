@@ -8,7 +8,6 @@
 	var Discount = ViewBag.Discount as IEnumerable<Product>;
 	var Category = ViewBag.Category as IEnumerable<Category>;
 }
-
 <!--Index-->
 <section id="billboard">
 	<div class="container">
@@ -36,7 +35,7 @@
 										</div>
 									</div>
 									<div style="max-width:600px;">
-										<img src="@item.Image" alt="banner" width="350" class="banner-image">
+										<img src="@item.Image" alt="banner" style="height:500px;">
 									</div>
 								</div>
 							</text>
@@ -142,7 +141,7 @@
 								<div class="products-content">
 									<div class="author-name">By @(BestSeller.Author != null ? BestSeller.Author.Name : "N/A")</div>
 									<h3 class="item-title">@BestSeller.Name</h3>
-									<p>@BestSeller.Description</p>
+									<p>@(BestSeller.Description?.Length > 150 ? BestSeller.Description.Substring(0, 150) + "..." : BestSeller.Description)</p>
 									<div class="item-price">BDT @BestSeller.Price</div>
 									<div class="btn-wrap">
 										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@BestSeller.ID" class="btn-accent-arrow">
