@@ -90,7 +90,10 @@
 								<div class="col-md-3">
 									<div class="product-item">
 										<figure class="product-style">
-											<img src="@item.Image" alt="Books" class="product-item">
+											<div>
+												<img src="@item.Image" alt="Books" style="height:350px;" class="product-item">
+											</div>
+											@* <img src="@item.Image" alt="Books" class="product-item"> *@
 											<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item.ID">
 												Add to Cart
 											</button>
@@ -190,7 +193,10 @@
 									<div class="col-md-3">
 										<div class="product-item">
 											<figure class="product-style">
-												<img src="@item2.Image" alt="Books" class="product-item">
+												<div>
+													<img src="@item2.Image" alt="Books" style="height:350px;" class="product-item">
+												</div>
+												@* <img src="@item2.Image" alt="Books" class="product-item"> *@
 												<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item2.ID">
 													Add to Cart
 												</button>
