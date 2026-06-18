@@ -38,7 +38,7 @@
                 @Html.DisplayFor(modelItem => item.PaymentDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Order.ID)
+                @(item.Order != null ? item.Order.ID : "")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.DelivaryCharge)

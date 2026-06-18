@@ -1,0 +1,170 @@
+﻿@model EBookStore.Models.Filters.AssignRolePermissionCreateModel
+
+@{
+    ViewData["Title"] = $"Role Permissions - {Model.Role?.Name}";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .table th {
+            background-color: #f8f9fc;
+            border-bottom: 2px solid #e3e6f0;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f5f6f8;
+            cursor: pointer;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-lg {
+            padding: 10px 24px;
+            font-size: 16px;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Assign Permissions for Role: @Model.Role?.Name</h3>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="RolePermission" asp-controller="UserType" method="post">
+                <input type="hidden" asp-for="Role.ID" name="RoleId" id="roleId" />
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="permissionsTable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th width="50px">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                        <label class="form-check-label" for="selectAll">Select All</label>
+                                    </div>
+                                </th>
+                                <th>Controller</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ActionRoutes != null && Model.ActionRoutes.Any())
+                            {
+                                var assignedPermissionIds = Model.RolePermissions?.Select(rp => rp.ActionRouteID).ToHashSet() ?? new HashSet<int>();
+
+                                foreach (var actionRoute in Model.ActionRoutes)
+                                {
+                                    bool isChecked = assignedPermissionIds.Contains(actionRoute.ID);
+                                    <tr>
+                                        <td class="text-center">
+                                            <div class="form-check">
+                                                <input type="checkbox"
+                                                       class="form-check-input permission-checkbox"
+                                                       name="PermissionIds"
+                                                       value="@actionRoute.ID"
+                                                       id="perm_@actionRoute.ID"
+                                                @(isChecked ? "checked" : "") />
+                                                <label class="form-check-label" for="perm_@actionRoute.ID"></label>
+                                            </div>
+                                        </td>
+                                        <td>@actionRoute.Controller</td>
+                                        <td>@actionRoute.Action</td>
+                                        <td>
+                                            <span class="badge @(actionRoute.Status ? "badge-success" : "badge-danger")">
+                                                @(actionRoute.Status ? "Active" : "Inactive")
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">
+                                        No Action Routes available.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-group mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save"></i> Save Permissions
+                            </button>
+                            <a asp-action="Index" asp-controller="UserType" class="btn btn-secondary btn-lg ml-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <button type="button" class="btn btn-info btn-lg" id="checkAll">
+                                <i class="fas fa-check-double"></i> Check All
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg" id="uncheckAll">
+                                <i class="fas fa-square"></i> Uncheck All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Select All functionality
+            $("#selectAll").change(function() {
+                $(".permission-checkbox").prop("checked", $(this).prop("checked"));
+            });
+
+            // Check All button
+            $("#checkAll").click(function() {
+                $(".permission-checkbox").prop("checked", true);
+                $("#selectAll").prop("checked", true);
+            });
+
+            // Uncheck All button
+            $("#uncheckAll").click(function() {
+                $(".permission-checkbox").prop("checked", false);
+                $("#selectAll").prop("checked", false);
+            });
+
+            // Update Select All checkbox based on individual selections
+            $(".permission-checkbox").change(function() {
+                var allChecked = $(".permission-checkbox:checked").length === $(".permission-checkbox").length;
+                $("#selectAll").prop("checked", allChecked);
+            });
+        });
+    </script>
+}

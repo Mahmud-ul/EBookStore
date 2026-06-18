@@ -57,7 +57,7 @@ namespace EBookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,OrderDate,StatusDate,Status,UserID")] Order order)
+        public async Task<IActionResult> Create([Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -91,7 +91,7 @@ namespace EBookStore.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,OrderDate,StatusDate,Status,UserID")] Order order)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
             if (id != order.ID)
             {
@@ -185,7 +185,7 @@ namespace EBookStore.Controllers
         }
 
         [HttpPost]
-        public IActionResult ConfirmOrder(string PaymentMethod, int DeliveryCharge)
+        public IActionResult ConfirmOrder(string name, string phone, string city, string area, string address, string PaymentMethod, int DeliveryCharge, int total)
         {
             try
             {
@@ -207,7 +207,15 @@ namespace EBookStore.Controllers
                         OrderDate = DateTime.Now,
                         StatusDate = DateTime.Now,
                         Status = "On Process",
-                        UserID = userID ?? 0
+                        UserID = userID ?? 0,
+                        Name = name,
+                        Phone = phone,
+                        City = city,
+                        Area = area,
+                        Address = address,
+                        PaymentMethod = PaymentMethod,
+                        TotalAmount = total,
+                        DeliveryCharge = DeliveryCharge
                     };
                     _context.Add(order);
 
@@ -218,7 +226,6 @@ namespace EBookStore.Controllers
                         if (orderID > 0)
                         {
                             List<OrderProduct> orderProducts = new List<OrderProduct>();
-
                             IEnumerable<Cart> cart = _context.Carts.Where(w => w.UserID == userID).Include(i => i.Product).ToList();
 
                             foreach (Cart c in cart)
@@ -228,9 +235,9 @@ namespace EBookStore.Controllers
                                 orp.ProductID = c.ProductID;
                                 orp.Price = c.Product != null ? (c.Product.Price) - (c.Product.Discount ?? 0) : 0;
                                 orp.Quantity = c.Quantity;
-
                                 orderProducts.Add(orp);
                             }
+
                             _context.AddRange(orderProducts);
                             _context.RemoveRange(cart);
                             
@@ -255,9 +262,33 @@ namespace EBookStore.Controllers
         }
 
         [HttpGet]
-        public IActionResult OrderList()
+        public async Task<IActionResult> OrderList()
         {
-            return View();
+            int? userID = HttpContext.Session.GetInt32("UserID");
+
+            if (userID == null)
+            {
+                TempData["Error"] = "Please Login to view your order!";
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            IEnumerable<Order> orders = await _context.Orders.Where(w=> w.UserID == userID).ToListAsync(); 
+            
+            return View(orders);
+        }
+
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            Order? order = _context.Orders.Where(w => w.ID == id).Include(i => i.OrderProducts!).ThenInclude(j=>j.Product).FirstOrDefault();
+
+            if(order == null)
+            {
+                TempData["Error"] = "Something went wrong. Please try again later.";
+                return RedirectToAction("OrderList");
+            }
+
+            return View(order);
         }
     }
 }

@@ -1,352 +1,450 @@
 ﻿@{
-	ViewData["Title"] = "Home Page";
-	Layout = "~/Views/Shared/_Layout.cshtml";
-	var SlideShow = ViewBag.SlideShow as IEnumerable<Product>;
-	var Featured = ViewBag.Featured as IEnumerable<Product>;
-	var BestSeller = ViewBag.BestSeller as Product;
-	var Popular = ViewBag.Popular as IEnumerable<Product>;
-	var Discount = ViewBag.Discount as IEnumerable<Product>;
-
-	var Category = ViewBag.Category as IEnumerable<Category>;
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var SlideShow = ViewBag.SlideShow as IEnumerable<Product>;
+    var Featured = ViewBag.Featured as IEnumerable<Product>;
+    var BestSeller = ViewBag.BestSeller as Product;
+    var Popular = ViewBag.Popular as IEnumerable<Product>;
+    var Discount = ViewBag.Discount as IEnumerable<Product>;
+    var Category = ViewBag.Category as IEnumerable<Category>;
 }
 
-<!--Index-->
+@section Styles {
+    <style>
+        /* Toast animations */
+        .toast-container {
+            z-index: 1100;
+        }
+
+        .toast {
+            opacity: 0;
+            animation: slideInRight 0.3s ease forwards;
+        }
+
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+}
+
+<!-- Toast Container for Notifications -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <!-- Success Toast -->
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span id="successToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span id="errorToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Warning Toast -->
+    <div id="warningToast" class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span id="warningToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Info Toast -->
+    <div id="infoToast" class="toast align-items-center text-white bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <span id="infoToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <section id="billboard">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-
-				<button class="prev slick-arrow">
-					<i class="icon icon-arrow-left"></i>
-				</button>
-
-				<div class="main-slider pattern-overlay">
-					@if(SlideShow != null && SlideShow.Any())
-					{
-						foreach (var item in SlideShow)
-						{
-							<div class="slider-item">
-								<div class="banner-content">
-									<h2 class="banner-title">@item.Name</h2>
-									<p>
-										@item.Description
-									</p>
-									<div class="btn-wrap">
-										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
-											Read More<i class="icon icon-ns-arrow-right"></i>
-										</a>
-									</div>
-								</div><!--banner-content-->
-								<div style="max-width:600px;">
-									<img src="@item.Image" alt="banner" class="banner-image">
-								</div>
-								
-							</div>
-							<!--slider-item-->
-						}
-					}								
-
-				</div><!--slider-->
-
-				<button class="next slick-arrow">
-					<i class="icon icon-arrow-right"></i>
-				</button>
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="prev slick-arrow">
+                    <i class="icon icon-arrow-left"></i>
+                </button>
+                <div class="main-slider pattern-overlay">
+                    @if (SlideShow != null && SlideShow.Any())
+                    {
+                        foreach (var item in SlideShow)
+                        {
+                            <div class="slider-item">
+                                <div class="banner-content">
+                                    <h2 class="banner-title">@item.Name</h2>
+                                    <p>@(item.Description?.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description ?? "")</p>
+                                    <div class="btn-wrap">
+                                        <a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="btn btn-outline-accent btn-accent-arrow">
+                                            Read More <i class="icon icon-ns-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div>
+                                    <img src="@item.Image" alt="@item.Name" style="width: 100%; height: 500px; object-fit: cover;" class="banner-image">
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <button class="next slick-arrow">
+                    <i class="icon icon-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="client-holder" data-aos="fade-up">
-	<div class="container">
-		<div class="row">
-			<div class="inner-content">
-				<div class="logo-wrap">
-					<div class="grid">
-						<a href="#"><img src="images/client-image1.png" alt="client"></a>
-						<a href="#"><img src="images/client-image2.png" alt="client"></a>
-						<a href="#"><img src="images/client-image3.png" alt="client"></a>
-						<a href="#"><img src="images/client-image4.png" alt="client"></a>
-						<a href="#"><img src="images/client-image5.png" alt="client"></a>
-					</div>
-				</div><!--image-holder-->
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="row">
+            <div class="inner-content">
+                <div class="logo-wrap">
+                    <div class="grid">
+                        <a href="#"><img src="images/client-image1.png" alt="client"></a>
+                        <a href="#"><img src="images/client-image2.png" alt="client"></a>
+                        <a href="#"><img src="images/client-image3.png" alt="client"></a>
+                        <a href="#"><img src="images/client-image4.png" alt="client"></a>
+                        <a href="#"><img src="images/client-image5.png" alt="client"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="featured-books" class="py-5 my-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-
-				<div class="section-header align-center">
-					<div class="title">
-						<span>Some quality items</span>
-					</div>
-					<h2 class="section-title">Featured Books</h2>
-				</div>
-
-				<div class="product-list" data-aos="fade-up">
-					<div class="row">
-						@if (Featured != null && Featured.Any())
-						{
-							foreach (var item in Featured)
-							{
-								<div class="col-md-3">
-									<div class="product-item">
-										<figure class="product-style">
-											<img src="@item.Image" alt="Books" class="product-item">
-											<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item.ID">
-												Add to
-												Cart
-											</button>
-										</figure>
-										<figcaption>
-											<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" style="text-decoration:none;">@item.Name</a></h3>
-											<span>@(item.Author!=null? item.Author.Name : "N/A")</span>
-											<div class="item-price">BDT @item.Price</div>
-										</figcaption>
-									</div>
-								</div>
-							}
-						}
-
-					</div><!--ft-books-slider-->
-				</div><!--grid-->
-
-
-			</div><!--inner-content-->
-		</div>
-
-		<div class="row">
-			<div class="col-md-12">
-
-				<div class="btn-wrap align-right">
-					<a asp-action="ProductList" asp-controller="Product" asp-route-featured="True" class="btn-accent-arrow">
-						View all products <i class="icon icon-ns-arrow-right"></i>
-					</a>
-				</div>
-
-			</div>
-		</div>
-	</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-header align-center">
+                    <div class="title">
+                        <span>Some quality items</span>
+                    </div>
+                    <h2 class="section-title">Featured Books</h2>
+                </div>
+                <div class="product-list" data-aos="fade-up">
+                    <div class="row">
+                        @if (Featured != null && Featured.Any())
+                        {
+                            foreach (var item in Featured)
+                            {
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="product-item">
+                                        <figure class="product-style">
+                                            <img src="@item.Image" alt="@item.Name" class="product-item">
+                                            <button type="button" class="add-to-cart Cart" data-product-id="@item.ID">
+                                                Add to Cart
+                                            </button>
+                                        </figure>
+                                        <figcaption>
+                                            <h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="text-decoration-none">@item.Name</a></h3>
+                                            <span>@(item.Author?.Name ?? "N/A")</span>
+                                            <div class="item-price">BDT @item.Price</div>
+                                        </figcaption>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="btn-wrap align-right">
+                    <a asp-action="ProductList" asp-controller="Product" asp-route-featured="True" class="btn-accent-arrow">
+                        View all products <i class="icon icon-ns-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="best-selling" class="leaf-pattern-overlay">
-	<div class="corner-pattern-overlay"></div>
-	<div class="container">
-		<div class="row justify-content-center">
-
-			<div class="col-md-8">
-
-				<div class="row">
-					@if (BestSeller != null)
-					{
-						<div class="col-md-6">
-							<figure class="products-thumb">
-								<img src="@BestSeller.Image" alt="book" class="single-image">
-							</figure>
-						</div>
-
-						<div class="col-md-6">
-							<div class="product-entry">
-								<h2 class="section-title divider">Best Selling Book</h2>
-								<div class="products-content">
-								<div class="author-name">By @(BestSeller.Author!= null? BestSeller.Author.Name : "N/A")</div>
-									<h3 class="item-title">@BestSeller.Name</h3>
-									<p>
-										@BestSeller.Description
-									</p>
-									<div class="item-price">BDT @BestSeller.Price</div>
-									<div class="btn-wrap">
-										<a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@BestSeller.ID" class="btn-accent-arrow">
-											shop it now <i class="icon icon-ns-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					}
-
-				</div>
-				<!-- / row -->
-
-			</div>
-
-		</div>
-	</div>
+    <div class="corner-pattern-overlay"></div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="row">
+                    @if (BestSeller != null)
+                    {
+                        <div class="col-md-6">
+                            <figure class="products-thumb">
+                                <img src="@BestSeller.Image" alt="@BestSeller.Name" style="width: 100%; height: 500px; object-fit: contain;" class="single-image">
+                            </figure>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="product-entry">
+                                <h2 class="section-title divider">Best Selling Book</h2>
+                                <div class="products-content">
+                                    <div class="author-name">By @(BestSeller.Author?.Name ?? "N/A")</div>
+                                    <h3 class="item-title">@BestSeller.Name</h3>
+                                    <p>@(BestSeller.Description?.Length > 100 ? BestSeller.Description.Substring(0, 100) + "..." : BestSeller.Description ?? "")</p>
+                                    <div class="item-price">BDT @BestSeller.Price</div>
+                                    <div class="btn-wrap">
+                                        <a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@BestSeller.ID" class="btn-accent-arrow">
+                                            Shop it now <i class="icon icon-ns-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="popular-books" class="bookshelf py-5 my-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-
-				<div class="section-header align-center">
-					<div class="title">
-						<span>Some quality items</span>
-					</div>
-					<h2 class="section-title">Popular Books</h2>
-				</div>
-
-				<ul class="tabs">
-					@if (Category != null && Category.Any())
-					{
-						<li data-tab-target="#all-genre" class="active tab">All Genre</li>
-						foreach(var i in Category)
-						{
-							<li data-tab-target="#@i.Name" class="tab">@i.Name</li>
-						}
-					}									
-				</ul>
-
-				<div class="tab-content">
-					@if (Category != null && Category.Any() && Popular != null && Popular.Any())
-					{
-						<div id="all-genre" data-tab-content class="active">
-							<div class="row">
-								@foreach (var item2 in Popular)
-								{
-									<div class="col-md-3">
-										<div class="product-item">
-											<figure class="product-style">
-												<img src="@item2.Image" alt="Books" class="product-item">
-												<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item2.ID">
-													Add to
-													Cart
-												</button>
-											</figure>
-											<figcaption>
-												<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item2.ID" style="text-decoration:none;">@item2.Name</a></h3>
-												<span>@(item2.Author != null? item2.Author.Name : "N/A")</span>
-												<div class="item-price">BDT @item2.Price</div>
-											</figcaption>
-										</div>
-									</div>
-								}
-							</div>
-
-						</div>
-						foreach (var item in Category)
-						{
-							<div id="@item.Name" data-tab-content>
-								<div class="row">
-									@foreach (var item2 in Popular)
-									{
-										if (item2.Category != null && item2.Category.Name == item.Name)
-										{
-											<div class="col-md-3">
-												<div class="product-item">
-													<figure class="product-style">
-														<img src="@item2.Image" alt="Books" class="product-item">
-														<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item2.ID">
-															Add to
-															Cart
-														</button>
-													</figure>
-													<figcaption>
-														<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item2.ID" style="text-decoration:none;">@item2.Name</a></h3>
-														<span>@(item2.Author != null ? item2.Author.Name : "N/A")</span>
-														<div class="item-price">BDT @item2.Price</div>
-													</figcaption>
-												</div>
-											</div>
-										}	
-									}
-								</div>
-							</div>
-						}
-					}
-
-				</div>
-
-			</div><!--inner-tabs-->
-
-		</div>
-	</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-header align-center">
+                    <div class="title">
+                        <span>Some quality items</span>
+                    </div>
+                    <h2 class="section-title">Popular Books</h2>
+                </div>
+                @if (Category != null && Category.Any())
+                {
+                    <ul class="tabs" role="tablist">
+                        <li data-tab-target="#all-genre" class="active tab" role="tab">All Genre</li>
+                        @foreach (var i in Category)
+                        {
+                            <li data-tab-target="#@i.Name.Replace(" ", "-")" class="tab" role="tab">@i.Name</li>
+                        }
+                    </ul>
+                    <div class="tab-content">
+                        <div id="all-genre" data-tab-content class="active">
+                            <div class="row g-4">
+                                @if (Popular != null)
+                                {
+                                    foreach (var item2 in Popular)
+                                    {
+                                        <div class="col-md-3 col-sm-6">
+                                            <div class="product-item">
+                                                <figure class="product-style">
+                                                    <img src="@item2.Image" alt="@item2.Name" class="product-item">
+                                                    <button type="button" class="add-to-cart Cart" data-product-id="@item2.ID">
+                                                        Add to Cart
+                                                    </button>
+                                                </figure>
+                                                <figcaption>
+                                                    <h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item2.ID" class="text-decoration-none">@item2.Name</a></h3>
+                                                    <span>@(item2.Author?.Name ?? "N/A")</span>
+                                                    <div class="item-price">BDT @item2.Price</div>
+                                                </figcaption>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        @foreach (var item in Category)
+                        {
+                            var categoryId = item.Name.Replace(" ", "-");
+                            <div id="@categoryId" data-tab-content>
+                                <div class="row g-4">
+                                    @if (Popular != null)
+                                    {
+                                        foreach (var item2 in Popular.Where(p => p.Category?.Name == item.Name))
+                                        {
+                                            <div class="col-md-3 col-sm-6">
+                                                <div class="product-item">
+                                                    <figure class="product-style">
+                                                        <img src="@item2.Image" alt="@item2.Name" class="product-item">
+                                                        <button type="button" class="add-to-cart Cart" data-product-id="@item2.ID">
+                                                            Add to Cart
+                                                        </button>
+                                                    </figure>
+                                                    <figcaption>
+                                                        <h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item2.ID" class="text-decoration-none">@item2.Name</a></h3>
+                                                        <span>@(item2.Author?.Name ?? "N/A")</span>
+                                                        <div class="item-price">BDT @item2.Price</div>
+                                                    </figcaption>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </section>
 
 <section id="quotation" class="align-center pb-5 mb-5">
-	<div class="inner-content">
-		<h2 class="section-title divider">Quote of the day</h2>
-		<blockquote data-aos="fade-up">
-			<q>
-				“The more that you read, the more things you will know. The more that you learn, the more places
-				you’ll go.”
-			</q>
-			<div class="author-name">Dr. Seuss</div>
-		</blockquote>
-	</div>
+    <div class="inner-content">
+        <h2 class="section-title divider">Quote of the day</h2>
+        <blockquote data-aos="fade-up">
+            <q>
+                "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
+            </q>
+            <div class="author-name">Dr. Seuss</div>
+        </blockquote>
+    </div>
 </section>
 
 <section id="special-offer" class="bookshelf pb-5 mb-5">
-
-	<div class="section-header align-center">
-		<div class="title">
-			<span>Grab your opportunity</span>
-		</div>
-		<h2 class="section-title">Books with offer</h2>
-	</div>
-
-	<div class="container">
-		<div class="row">
-			<div class="inner-content">
-				<div class="product-list" data-aos="fade-up">
-					<div class="grid product-grid">
-						@if (Discount != null && Discount.Any())
-						{
-							foreach (var item in Discount)
-							{
-								<div class="product-item">
-									<figure class="product-style">
-										<img src="@item.Image" alt="Books" class="product-item">
-										<button type="button" class="add-to-cart Cart" data-product-tile="add-to-cart" id="@item.ID">
-											Add to
-											Cart
-										</button>
-									</figure>
-									<figcaption>
-										<h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" style="text-decoration:none;">@item.Name</a></h3>
-
-										<span>@(item.Author != null ? item.Author.Name : "N/A")</span>
-										<div class="item-price">
-											<span class="prev-price">BDT @item.Price</span>BDT @(item.Price-item.Discount)
-										</div>
-									</figcaption>
-								</div>
-							}
-						}
-					</div><!--grid-->
-				</div>
-			</div><!--inner-content-->
-		</div>
-	</div>
+    <div class="container">
+        <div class="section-header align-center">
+            <div class="title">
+                <span>Grab your opportunity</span>
+            </div>
+            <h2 class="section-title">Books with offer</h2>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="product-list" data-aos="fade-up">
+                    <div class="row g-4">
+                        @if (Discount != null && Discount.Any())
+                        {
+                            foreach (var item in Discount)
+                            {
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="product-item">
+                                        <figure class="product-style">
+                                            <img src="@item.Image" alt="@item.Name" class="product-item">
+                                            <button type="button" class="add-to-cart Cart" data-product-id="@item.ID">
+                                                Add to Cart
+                                            </button>
+                                        </figure>
+                                        <figcaption>
+                                            <h3><a asp-action="ProductDetails" asp-controller="Product" asp-route-id="@item.ID" class="text-decoration-none">@item.Name</a></h3>
+                                            <span>@(item.Author?.Name ?? "N/A")</span>
+                                            <div class="item-price">
+                                                <span class="prev-price text-decoration-line-through me-2">BDT @item.Price</span>
+                                                <span class="text-danger fw-bold">BDT @(item.Price - item.Discount)</span>
+                                            </div>
+                                        </figcaption>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 
 @section Scripts {
-	<script>
-		jQuery(document).ready(function(){
-			jQuery(".Cart").click(function(){
-				var id = $(this).attr("id");
-				//alert("successfully clicked! " + id);
-				$.ajax({
-					url:'@Url.Action("AddToCart", "Cart")',
-					type: "POST",
-					data:{id: id},
-					success:function(response){
-						if (response.success) {
-							alert(response.message); // Item added to cart!
-						$("#cart").text("Cart: (BDT " + response.totalCart + ")");
-						}	 
-						else {
-							alert(response.message);
-						}
-					},
-					error:function(xhr, status, error){
-						console.error("Error:", error);
-					}
-				});
-			});
-		});	
-	</script>
+    <script>
+        $(document).ready(function () {
+            // Toast functions
+            function showSuccess(message) {
+                $('#successToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#successToast'), {
+                    delay: 3000,
+                    autohide: true
+                });
+                toast.show();
+            }
+
+            function showError(message) {
+                $('#errorToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#errorToast'), {
+                    delay: 5000,
+                    autohide: true
+                });
+                toast.show();
+            }
+
+            function showWarning(message) {
+                $('#warningToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#warningToast'), {
+                    delay: 4000,
+                    autohide: true
+                });
+                toast.show();
+            }
+
+            function showInfo(message) {
+                $('#infoToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#infoToast'), {
+                    delay: 3000,
+                    autohide: true
+                });
+                toast.show();
+            }
+
+            // Add to Cart functionality
+            $(".Cart").click(function () {
+                var id = $(this).data("product-id");
+                var $btn = $(this);
+
+                // Show loading state
+                var originalText = $btn.html();
+                $btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Adding...');
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: "POST",
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.success) {
+                            $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                            showSuccess(response.message || 'Item added to cart successfully!');
+
+                            // Optional: Add animation to cart icon
+                            $("#cart").css("transform", "scale(1.1)");
+                            setTimeout(function() {
+                                $("#cart").css("transform", "scale(1)");
+                            }, 300);
+                        } else {
+                            showError(response.message || 'Failed to add item to cart.');
+                        }
+                        $btn.prop('disabled', false).html(originalText);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error:", error);
+                        if (xhr.status === 403) {
+                            showError('You do not have permission to add items to cart. Please login.');
+                        } else if (xhr.status === 401) {
+                            showWarning('Please login to add items to cart.');
+                        } else {
+                            showError('An error occurred. Please try again.');
+                        }
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+
+            // Auto slide for billboard
+            setInterval(function () {
+                $('.next').click();
+            }, 5000);
+        });
+    </script>
 }

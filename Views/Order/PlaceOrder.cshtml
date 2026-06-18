@@ -7,12 +7,12 @@
     decimal outDhakaCharge = 100;
 
     // Calculate product total
-    decimal productTotal = Model.Sum(c => (c.Product.Discount.HasValue ? c.Product.Price - c.Product.Discount.Value : c.Product.Price) * c.Quantity);
+    decimal productTotal = Model.Sum(c => (c.Product!.Discount.HasValue ? c.Product.Price - c.Product.Discount.Value : c.Product.Price) * c.Quantity);
 }
 
 <div class="container my-5">
     <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header text-white py-3 px-4" style="background: linear-gradient(90deg, #00b4d8, #007bff);">
+        <div class="card-header text-white py-3 px-4" style="background: linear-gradient(90deg, #C5A992, #A67B5B);">     
             <h4 class="mb-0 fw-semibold"><i class="bi bi-credit-card-2-front-fill me-2"></i>Confirm Your Order</h4>
         </div>
 
@@ -77,161 +77,167 @@
                 <hr class="my-2" />
 
                 <!-- Grand Total -->
-                <div class="d-flex justify-content-between align-items-center px-5" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);border-radius: 15px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                <div class="d-flex justify-content-between align-items-center px-5" style="background: #C5A992; border-radius: 15px; padding: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
                     <span class="fs-5 fw-semibold">Grand Total</span>
                     <span id="grandTotal" class="fs-4 fw-semibold">৳@(productTotal + insideDhakaCharge)</span>
                 </div>
             </div>
-                        
-            <div class="container my-5">
-                <!-- Shipping Address -->
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-primary d-flex align-items-baseline">
-                        <h3 class="mb-0 me-3"><i class="bi bi-truck me-2"></i>Shipping Address</h3>
-                        <div class="d-flex align-items-baseline">
-                            <div class="form-check form-check-inline mb-0">
-                                <input class="form-check-input" type="radio" name="AddressType" id="Home" value="Home" checked>
-                                <label class="form-check-label" for="Home">Home</label>
-                            </div>
-                            <div class="form-check form-check-inline mb-0">
-                                <input class="form-check-input" type="radio" name="AddressType" id="Work" value="Work">
-                                <label class="form-check-label" for="Work">Work</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <!-- Full Name -->
-                        <div class="mb-3">
-                            <label for="FullName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control rounded" id="FullName" placeholder="Enter your full name" required>
-                        </div>
-
-                        <!-- Phone Number -->
-                        <div class="mb-3">
-                            <label for="PhoneNumber" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control rounded" id="PhoneNumber" placeholder="Enter your phone number" required>
-                        </div>
-
-                        <!-- City Dropdown -->
-                        <div class="mb-3">
-                            <label for="City" class="form-label">City</label>
-                            <select class="form-select rounded" id="City" required>
-                                <option value="">Select City</option>
-                                <option value="Dhaka">Dhaka</option>
-                                <option value="Chattogram">Chattogram</option>
-                                <option value="Khulna">Khulna</option>
-                                <option value="Rajshahi">Rajshahi</option>
-                                <option value="Barishal">Barishal</option>
-                                <option value="Sylhet">Sylhet</option>
-                                <option value="Rangpur">Rangpur</option>
-                                <option value="Mymensingh">Mymensingh</option>
-                            </select>
-                        </div>
-
-                        <!-- Area Dropdown -->
-                        <div class="mb-3">
-                            <label for="Area" class="form-label">Area</label>
-                            <select class="form-select rounded" id="Area" required>
-                                <option value="">Select Area</option>
-                            </select>
-                        </div>
-
-                        <!-- Full Address -->
-                        <div class="mb-3">
-                            <label for="FullAddress" class="form-label">Full Address</label>
-                            <textarea class="form-control rounded" id="FullAddress" rows="2" placeholder="Enter your full address" required></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payment Methods -->
-                <div class="card shadow-sm mt-4">
-                    <div class="card-header bg-gradient-success text-white">
-                        <h3 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i>Payment Method <small class="text-white-50">(Please select a payment method)</small></h3>
-                    </div>
-                    <div class="card-body">
-                        <!-- Cash on Delivery Section -->
-                        <div class="mb-4">
-                            <h5 class="fw-bold mb-2">ক্যাশ অন ডেলিভারি</h5>
-                            <p class="text-muted small mb-3">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
-                            <div class="border rounded p-3">
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CashOnDelivery" value="CashOnDelivery" checked style="width: 20px; height: 20px;">
-                                    <label class="form-check-label d-flex align-items-center" for="CashOnDelivery">
-                                        <i class="bi bi-cash-stack fs-2 text-success me-2"></i>
-                                        <span class="fw-semibold">ক্যাশ অন ডেলিভারি</span>
-                                    </label>
+            <form asp-action="ConfirmOrder" asp-controller="Order" method="post" id="paymentForm">
+                <div class="container my-5">
+                    <!-- Shipping Address -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-gradient-primary d-flex align-items-baseline">
+                            <h3 class="mb-0 me-3"><i class="bi bi-truck me-2"></i>Shipping Address</h3>
+                            <div class="d-flex align-items-baseline">
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="radio" name="AddressType" id="Home" value="Home" checked>
+                                    <label class="form-check-label" for="Home">Home</label>
+                                </div>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input" type="radio" name="AddressType" id="Work" value="Work">
+                                    <label class="form-check-label" for="Work">Work</label>
                                 </div>
                             </div>
                         </div>
+                        <div class="card-body">
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label for="FullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control rounded" id="FullName" name="name" placeholder="Enter your full name" required>
+                            </div>
 
-                        <!-- Mobile Wallet Section -->
-                        <div class="mb-4">
-                            <h5 class="fw-bold mb-2">মোবাইল ওয়ালেট</h5>
-                            <p class="text-muted small mb-3">মোবাইল ওয়ালেট মাধ্যমে টাকা পরিশোধ করুন</p>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3">
-                                        <div class="form-check d-flex align-items-center">
-                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Bkash" value="Bkash" style="width: 20px; height: 20px;">
-                                            <label class="form-check-label d-flex align-items-center" for="Bkash">
-                                                <img src="https://www.swadeshpratidin.com/2024/01/24/VP_1706094096.jpg" alt="bKash" style="height: 70px;">
-                                            </label>
-                                        </div>
-                                    </div>
+                            <!-- Phone Number -->
+                            <div class="mb-3">
+                                <label for="PhoneNumber" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control rounded" id="PhoneNumber" name="phone" placeholder="Enter your phone number" required pattern="^\+?[0-9]{11,13}$" title="Please enter a valid phone number (11–13 digits, optional + sign)">
+                                <div class="invalid-feedback">
+                                    Please enter a valid phone number!!!
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3">
-                                        <div class="form-check d-flex align-items-center">
-                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Nagad" value="Nagad" style="width: 20px; height: 20px;">
-                                            <label class="form-check-label d-flex align-items-center" for="Nagad">
-                                                <img src="https://download.logo.wine/logo/Nagad/Nagad-Logo.wine.png" alt="Nagad" style="height: 70px;">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3">
-                                        <div class="form-check d-flex align-items-center">
-                                            <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Rocket" value="Rocket" style="width: 20px; height: 20px;">
-                                            <label class="form-check-label d-flex align-items-center" for="Rocket">
-                                                <img src="https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png" alt="Rocket" style="height: 70px;">
-                                            </label>
-                                        </div>
+                            </div>
+
+                            <!-- City Dropdown -->
+                            <div class="mb-3">
+                                <label for="City" class="form-label">City</label>
+                                <select class="form-select rounded" id="City" name="city" required>
+                                    <option value="">Select City</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Chattogram">Chattogram</option>
+                                    <option value="Khulna">Khulna</option>
+                                    <option value="Rajshahi">Rajshahi</option>
+                                    <option value="Barishal">Barishal</option>
+                                    <option value="Sylhet">Sylhet</option>
+                                    <option value="Rangpur">Rangpur</option>
+                                    <option value="Mymensingh">Mymensingh</option>
+                                </select>
+                            </div>
+
+                            <!-- Area Dropdown -->
+                            <div class="mb-3">
+                                <label for="Area" class="form-label">Area</label>
+                                <select class="form-select rounded" id="Area" name="area" required>
+                                    <option value="">Select Area</option>
+                                </select>
+                            </div>
+
+                            <!-- Full Address -->
+                            <div class="mb-3">
+                                <label for="FullAddress" class="form-label">Full Address</label>
+                                <textarea class="form-control rounded" id="FullAddress" name="address" rows="2" placeholder="Enter your full address" required></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header bg-gradient-success text-white">
+                            <h3 class="mb-0"><i class="bi bi-credit-card-2-front me-2"></i>Payment Method <small class="text-white-50">(Please select a payment method)</small></h3>
+                        </div>
+                        <input type="hidden" class="form-control rounded" name="total" value="@productTotal">
+                        <div class="card-body">
+                            <!-- Cash on Delivery Section -->
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-2">ক্যাশ অন ডেলিভারি</h5>
+                                <p class="text-muted small mb-3">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
+                                <div class="border rounded p-3">
+                                    <div class="form-check d-flex align-items-center">
+                                        <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CashOnDelivery" value="CashOnDelivery" checked style="width: 20px; height: 20px;">
+                                        <label class="form-check-label d-flex align-items-center" for="CashOnDelivery">
+                                            <i class="bi bi-cash-stack fs-2 text-success me-2"></i>
+                                            <span class="fw-semibold">ক্যাশ অন ডেলিভারি</span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Debit/Credit Card Section -->
-                        <div class="mb-0">
-                            <h5 class="fw-bold mb-2">ডেবিট / ক্রেডিট কার্ড</h5>
-                            <p class="text-muted small mb-3">কার্ড এর মাধ্যমে টাকা পরিশোধ করুন</p>
-                            <div class="border rounded p-3">
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CardPayment" value="Card" style="width: 20px; height: 20px;">
-                                    <label class="form-check-label d-flex align-items-center flex-wrap" for="CardPayment">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" class="me-2" style="height: 25px;">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" class="me-2" style="height: 25px;">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg" alt="Amex" class="me-2" style="height: 25px;">                   
-                                    </label>
+                            <!-- Mobile Wallet Section -->
+                            <div class="mb-4">
+                                <h5 class="fw-bold mb-2">মোবাইল ওয়ালেট</h5>
+                                <p class="text-muted small mb-3">মোবাইল ওয়ালেট মাধ্যমে টাকা পরিশোধ করুন</p>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Bkash" value="Bkash" style="width: 20px; height: 20px;">
+                                                <label class="form-check-label d-flex align-items-center" for="Bkash">
+                                                    <img src="~/Image/Payment/bkash.jpg" alt="bKash" style="height: 70px; object-fit: cover;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Nagad" value="Nagad" style="width: 20px; height: 20px;">
+                                                <label class="form-check-label d-flex align-items-center" for="Nagad">
+                                                    <img src="~/Image/Payment/nagad.png" alt="Nagad" style="height: 70px; object-fit: cover;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check d-flex align-items-center">
+                                                <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="Rocket" value="Rocket" style="width: 20px; height: 20px;">
+                                                <label class="form-check-label d-flex align-items-center" for="Rocket">
+                                                    <img src="~/Image/Payment/rocket.jpg" alt="Rocket" style="height: 70px; object-fit: cover;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Debit/Credit Card Section -->
+                            <div class="mb-0">
+                                <h5 class="fw-bold mb-2">ডেবিট / ক্রেডিট কার্ড</h5>
+                                <p class="text-muted small mb-3">কার্ড এর মাধ্যমে টাকা পরিশোধ করুন</p>
+                                <div class="border rounded p-3">
+                                    <div class="form-check d-flex align-items-center">
+                                        <input class="form-check-input me-3" type="radio" name="PaymentMethod" id="CardPayment" value="Card" style="width: 20px; height: 20px;">
+                                        <label class="form-check-label d-flex align-items-center flex-wrap" for="CardPayment">
+                                            <img src="~/Image/Payment/visa.jpg" alt="Visa" class="me-2" style="height: 50px;">
+                                            <img src="~/Image/Payment/mastercard.png" alt="Mastercard" class="me-2" style="height: 50px;">
+                                            <img src="~/Image/Payment/american_express.png" alt="Amex" class="me-2" style="height: 50px;">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            <!-- Confirm Payment Button -->
-            <div class="text-center">
-                <form asp-action="ConfirmOrder" asp-controller="Order" method="post" id="paymentForm">
+                    <!-- Confirm Payment Button -->
+                    <div class="text-center">
+                
                     <input type="hidden" name="PaymentMethod" id="PaymentMethod" value="Bikash" />
                     <input type="hidden" name="DeliveryCharge" id="DeliveryCharge" value="@insideDhakaCharge" />
                     <button type="submit" class="btn btn-lg px-5 rounded-3 shadow-sm gradient-btn mt-3">
-                        <i class="bi bi-bag-check-fill me-2"></i>Pay Now
+                        <i class="bi bi-bag-check-fill me-2"></i>Place Order
                     </button>
-                </form>
+                
             </div>
 
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -266,17 +272,17 @@
         }
 
     .gradient-btn {
-        background: linear-gradient(135deg, #8a2be2, #6a0dad);
+        background: #C5A992;
         border: none;
         color: white;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
         .gradient-btn:hover {
-            background: linear-gradient(135deg, #007bff, #00c6ff);
+            background: #A67B5B;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .gradient-btn:active {
@@ -344,5 +350,20 @@
                 $(this).closest('.border').addClass('border-primary shadow-sm');
             });
         });
+
+        (function () {
+        'use strict';
+        const forms = document.querySelectorAll('form');
+
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+        })();
     </script>
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EBookStore.Models.Filters;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection.Emit;
@@ -25,6 +26,8 @@ namespace EBookStore.Models.Database
         public DbSet<Publisher> Publishers { get; set; }
         public DbSet<UserType> UserTypes { get; set; }
         public DbSet<User> Users { get; set; }     
+        public DbSet<ActionRoute> ActionRoutes { get; set; }     
+        public DbSet<RolePermission> RolePermissions { get; set; }     
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +41,11 @@ namespace EBookStore.Models.Database
             #region Cart
             modelBuilder.Entity<Cart>().HasOne(m => m.User).WithMany(w => w.Carts).HasForeignKey(k => k.UserID);
             modelBuilder.Entity<Cart>().HasOne(m => m.Product).WithMany(w => w.Carts).HasForeignKey(k => k.ProductID);
+            #endregion
+
+            #region Authorization
+                modelBuilder.Entity<ActionRoute>().HasIndex(e => new { e.Controller, e.Action }).IsUnique();  //Controller and Action together Unique
+                modelBuilder.Entity<RolePermission>().HasIndex(e => new { e.ActionRouteID, e.RoleID }).IsUnique();  //ActionRouteID and RoleID together Unique
             #endregion
 
             modelBuilder.Entity<Author>().HasIndex(h => h.Name).IsUnique();

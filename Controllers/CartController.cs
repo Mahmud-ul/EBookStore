@@ -135,6 +135,7 @@ namespace EBookStore.Controllers
 
         public async Task<IActionResult> CartList()
         {
+
             var carts = _context.Carts.Where(w=>w.UserID == HttpContext.Session.GetInt32("UserID")).Include(c => c.Product).Include(c => c.User);
             return View(await carts.ToListAsync());
         }
@@ -181,55 +182,93 @@ namespace EBookStore.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateQuantity(int id, int quantity)
+        public IActionResult Remove(int id)
         {
-            var cart = _context.Carts.FirstOrDefault(c => c.ID == id);
-            if (cart != null)
+            try
             {
-                cart.Quantity = quantity;
+                // Get user role from session
+                string role = HttpContext.Session.GetString("UserType") ?? "";
+
+                //// Check permission
+                //if (role == "Viewer")
+                //{
+                //    return Json(new
+                //    {
+                //        success = false,
+                //        error = "Viewers cannot remove items from cart. Please contact administrator for upgrade."
+                //    });
+                //}
+
+                // Your existing removal logic
+                var cartItem = _context.Carts
+                    .Include(c => c.Product)
+                    .FirstOrDefault(c => c.ID == id);
+
+                if (cartItem == null)
+                {
+                    return Json(new { success = false, error = "Item not found." });
+                }
+
+                _context.Carts.Remove(cartItem);
                 _context.SaveChanges();
-            }
 
-            int? userID = HttpContext.Session.GetInt32("UserID");
-            int totalCart = 0;
-            if (userID != null)
+                // Calculate new total
+                int userId = HttpContext.Session.GetInt32("UserID") ?? 0;
+                int totalCart = _context.Carts
+                    .Where(c => c.UserID == userId)
+                    .Sum(c => ((c.Product!.Price - (c.Product.Discount ?? 0)) * c.Quantity));
+
+                return Json(new { success = true, totalCart = totalCart });
+            }
+            catch (Exception ex)
             {
-                totalCart = _context.Carts
-                    .Where(w => w.UserID == userID)
-                    .Include(s => s.Product) // ensure Product is loaded
-                    .ToList() // switch to client-side evaluation
-                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
-
-                HttpContext.Session.SetInt32("Cart", totalCart);
+                return Json(new { success = false, error = "An error occurred: " + ex.Message });
             }
-
-            return Json(new { success = true, totalCart });
         }
 
         [HttpPost]
-        public IActionResult Remove(int id)
+        public IActionResult UpdateQuantity(int id, int quantity)
         {
-            var cart = _context.Carts.FirstOrDefault(c => c.ID == id);
-            if (cart != null)
+            try
             {
-                _context.Carts.Remove(cart);
+                // Get user role from session
+                string role = HttpContext.Session.GetString("UserType") ?? "";
+
+                // Check permission
+                //if (role == "Viewer")
+                //{
+                //    return Json(new
+                //    {
+                //        success = false,
+                //        error = "Viewers cannot update cart quantities. View only access."
+                //    });
+                //}
+
+                // Your existing update logic
+                var cartItem = _context.Carts
+                    .Include(c => c.Product)
+                    .FirstOrDefault(c => c.ID == id);
+
+                if (cartItem == null)
+                {
+                    return Json(new { success = false, error = "Item not found." });
+                }
+
+                cartItem.Quantity = quantity;
                 _context.SaveChanges();
-            }
 
-            int? userID = HttpContext.Session.GetInt32("UserID");
-            int totalCart = 0;
-            if (userID != null)
+                // Calculate new total
+                int userId = HttpContext.Session.GetInt32("UserID") ?? 0;
+                int totalCart = _context.Carts
+                    .Where(c => c.UserID == userId)
+                    .Sum(c => ((c.Product!.Price - (c.Product.Discount ?? 0)) * c.Quantity));
+
+                return Json(new { success = true, totalCart = totalCart });
+            }
+            catch (Exception ex)
             {
-                totalCart = _context.Carts
-                    .Where(w => w.UserID == userID)
-                    .Include(s => s.Product) // ensure Product is loaded
-                    .ToList() // switch to client-side evaluation
-                    .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
-
-                HttpContext.Session.SetInt32("Cart", totalCart);
+                return Json(new { success = false, error = "An error occurred: " + ex.Message });
             }
-
-            return Json(new { success = true, totalCart });
-        }      
+        }
     }
 }

@@ -4,6 +4,23 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@section Styles{
+    <style>
+        .btn-view-details {
+            background: #C5A992;
+            color: #fff;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-view-details:hover {
+                background: #2E8B57;
+                color: #fff;
+                transform: translateY(-2px);
+            }
+    </style>
+}
+
 <div class="container my-5">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
@@ -30,17 +47,17 @@
                             @foreach (var order in Model)
                             {
                                 <tr>
-                                    <td><span class="fw-semibold">Order-@(10000 + order.ID)</span></td>
+                                    <td><a asp-action="OrderDetails" asp-controller="Order" asp-route-id="@order.ID" class="fw-semibold" style="text-decoration:none;">Order-@(10000 + order.ID)</a></td>
                                     <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
-                                    @* <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
+                                    <td><span class="fw-bold text-success">@order.TotalAmount.ToString("C")</span></td>
                                     <td>
                                         @if (order.PaymentMethod == "CashOnDelivery")
                                         {
-                                            <span class="badge bg-secondary"><i class="bi bi-cash me-1"></i>COD</span>
+                                            <span class="badge" style="background-color:yellowgreen; color:black;"><i class="bi bi-cash me-1"></i>Cash on Delivery</span>
                                         }
                                         else if (order.PaymentMethod == "Bkash")
                                         {
-                                            <span class="badge bg-pink"><i class="bi bi-phone-fill me-1"></i>bKash</span>
+                                            <span class="badge" style="background-color:darkmagenta; color:white;"><i class="bi bi-phone-fill me-1"></i>bKash</span>
                                         }
                                         else if (order.PaymentMethod == "Nagad")
                                         {
@@ -54,33 +71,33 @@
                                         {
                                             <span class="badge bg-primary"><i class="bi bi-credit-card-2-front me-1"></i>Card</span>
                                         }
-                                    </td> *@
+                                    </td> 
                                     <td>
                                         @if (order.Status == "Pending")
                                         {
                                             <span class="badge bg-warning text-dark">Pending</span>
                                         }
-                                        else if (order.Status == "Processing")
+                                        else if (order.Status == "On Process")
                                         {
-                                            <span class="badge bg-info text-dark">Processing</span>
+                                            <span class="badge bg-info text-dark">On Process</span>
                                         }
                                         else if (order.Status == "Delivered")
                                         {
                                             <span class="badge bg-success">Delivered</span>
                                         }
-                                        else if (order.Status == "Cancelled")
+                                        else if (order.Status == "Canceled")
                                         {
-                                            <span class="badge bg-danger">Cancelled</span>
+                                            <span class="badge bg-danger">Canceled</span>
                                         }
                                     </td>
-                                    @* <td class="text-center">
-                                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm rounded-circle me-2" data-bs-toggle="tooltip" title="View Details">
-                                            <i class="bi bi-eye-fill"></i>
+                                    <td class="text-center">
+                                        <a asp-action="OrderDetails" asp-route-id="@order.ID" class="btn btn-sm btn-view-details" data-bs-toggle="tooltip" title="View Details">
+                                            View Details
                                         </a>
-                                        <a asp-action="Invoice" asp-route-id="@order.OrderId" class="btn btn-outline-success btn-sm rounded-circle" data-bs-toggle="tooltip" title="Download Invoice">
-                                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                                        </a>
-                                    </td> *@
+                                        @* <a asp-action="Invoice" asp-route-id="@order.ID" class="btn btn-sm" data-bs-toggle="tooltip" title="Download Invoice" >
+                                            <i class="bi bi-file-earmark-arrow-down-fill" style="font-size: 14px;"></i>
+                                        </a> *@
+                                    </td>
                                 </tr>
                             }
                         </tbody>

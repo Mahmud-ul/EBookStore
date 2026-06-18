@@ -22,12 +22,20 @@ namespace EBookStore.Controllers
         // GET: Author
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") == "Admin" || HttpContext.Session.GetString("UserType") == "Viewer") { }
+            else
+                return RedirectToAction("Index", "Home");
+
             return View(await _context.Authors.ToListAsync());
         }
 
         // GET: Author/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") == "Admin" || HttpContext.Session.GetString("UserType") == "Viewer") { }
+            else
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -46,6 +54,10 @@ namespace EBookStore.Controllers
         // GET: Author/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") == "Admin" || HttpContext.Session.GetString("UserType") == "Viewer") { }
+            else
+                return RedirectToAction("Index", "Home");
+
             return View();
         }
 
@@ -56,6 +68,14 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Status")] Author author)
         {
+            if (HttpContext.Session.GetString("UserType") == "Viewer")
+            {
+                TempData["Error"] = "This ID is for view only!!!";
+                return RedirectToAction("Index", "Home");
+            }
+            else if (HttpContext.Session.GetString("UserType") != "Admin")
+                return RedirectToAction("Index", "Home");
+
             try
             {
                 bool check = _context.Authors.Any(a => a.Name == author.Name);
@@ -101,6 +121,14 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Status")] Author author)
         {
+            if (HttpContext.Session.GetString("UserType") == "Viewer")
+            {
+                TempData["Error"] = "This ID is for view only!!!";
+                return RedirectToAction("Index", "Home");
+            }
+            else if (HttpContext.Session.GetString("UserType") != "Admin")
+                return RedirectToAction("Index", "Home");
+
             if (id != author.ID)
             {
                 return NotFound();
@@ -138,6 +166,10 @@ namespace EBookStore.Controllers
         // GET: Author/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") == "Admin" || HttpContext.Session.GetString("UserType") == "Viewer") { }
+            else
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -158,6 +190,14 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") == "Viewer")
+            {
+                TempData["Error"] = "This ID is for view only!!!";
+                return RedirectToAction("Index", "Home");
+            }
+            else if (HttpContext.Session.GetString("UserType") != "Admin")
+                return RedirectToAction("Index", "Home");
+
             var author = await _context.Authors.FindAsync(id);
             if (author != null)
             {

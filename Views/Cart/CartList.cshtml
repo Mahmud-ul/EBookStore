@@ -3,17 +3,181 @@
     ViewData["Title"] = "My Cart";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Styles
+{
+    <style>
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #EDEBE4;
+            border-radius: 12px;
+            width: 120px;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+            flex-direction: row; /* ✅ Ensure horizontal layout */
+        }
 
-<div class="container my-5">
-    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-        <div class="card-header text-white py-3 px-4" style="background: linear-gradient(90deg, #00b4d8, #007bff);">
-            <h4 class="mb-0 fw-semibold"><i class="bi bi-cart4 me-2"></i>My Shopping Cart</h4>
+        .qty-btn {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: #C5A992;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 400;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+            .qty-btn:hover {
+                background: #A67B5B;
+            }
+
+            .qty-btn:active {
+                transform: scale(0.95);
+            }
+
+        .qty-input {
+            width: 50px;
+            height: 35px;
+            border: none;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            outline: none;
+            background: #fff;
+            line-height: 45px;
+            padding: 0;
+            margin: 0;
+            vertical-align: middle;
+            color: #5C4033;
+        }
+
+            .qty-input::-webkit-outer-spin-button,
+            .qty-input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .qty-input[type=number] {
+                -moz-appearance: textfield;
+            }
+
+        .btn-outline-danger {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+            .btn-outline-danger:hover {
+                background-color: #dc3545;
+                color: #fff;
+                transform: scale(1.15);
+                box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+            }
+
+        #cartTable tbody tr:hover {
+            background-color: #EDEBE4;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .card-header {
+            border-bottom: none;
+        }
+
+        /* Place Order Button Hover Effect */
+        .btn-place-order {
+            background: #C5A992;
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .btn-place-order:hover {
+                background: #A67B5B;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .btn-place-order:active {
+                transform: translateY(0);
+            }
+
+        /* Toast animations */
+        .toast {
+            opacity: 0;
+            animation: slideInRight 0.3s ease forwards;
+        }
+
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+}
+<div class="container my-4">
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        <!-- Error Toast -->
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="errorToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
         </div>
 
-        <div class="card-body p-4 bg-light">
+        <!-- Success Toast -->
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <span id="successToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- Warning Toast (Optional) -->
+        <div id="warningToast" class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="2000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span id="warningToastMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header py-3 px-4" style="background: #C5A992;">
+            <h4 class="mb-0 fw-semibold text-white"><i class="bi bi-cart4 me-2"></i>My Shopping Cart</h4>
+        </div>
+
+        <div class="card-body p-4" style="background: #EDEBE4;">
             @if (!Model.Any())
             {
-                <div class="alert alert-info text-center rounded-3 py-4 shadow-sm">
+                <div class="alert alert-info text-center rounded-3 py-4 shadow-sm" style="background: #EDEBE4; border-color: #C5A992; color: #5C4033;">
                     <i class="bi bi-info-circle-fill me-2"></i>Your cart is empty.
                 </div>
             }
@@ -22,7 +186,7 @@
                 <div class="table-responsive">
                     <table class="table table-borderless align-middle text-center" id="cartTable">
                         <thead class="bg-white shadow-sm border rounded-3">
-                            <tr class="fw-semibold text-secondary">
+                            <tr class="fw-semibold" style="color: #5C4033;">
                                 <th class="text-start ps-4">Product</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
@@ -42,20 +206,20 @@
                                                  alt="@product.Name"
                                                  style="width:80px; height:100px; object-fit:cover; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.15);">
                                             <div>
-                                                <h6 class="fw-semibold mb-1">@product.Name</h6>
+                                                <h6 class="fw-semibold mb-1" style="color: #5C4033;">@product.Name</h6>
                                                 <small class="text-muted">@product.Category?.Name</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="fw-semibold text-primary">৳@price</td>
+                                    <td class="fw-semibold" style="color: #8B5E3C;">৳@price</td>
                                     <td>
-                                        <div class="qty-controls mx-auto">
+                                        <div class="qty-controls mx-auto" style="flex-direction: row;">
                                             <button type="button" class="qty-btn decrease" title="Decrease"><i class="bi bi-dash-lg"></i></button>
                                             <input type="number" class="qty-input" value="@item.Quantity" min="1" max="99" readonly>
                                             <button type="button" class="qty-btn increase" title="Increase"><i class="bi bi-plus-lg"></i></button>
                                         </div>
                                     </td>
-                                    <td class="fw-semibold text-success item-total">৳@(price* item.Quantity)</td>
+                                    <td class="fw-semibold item-total" style="color: #2E8B57;">৳@(price * item.Quantity)</td>
                                     <td>
                                         <button type="button" class="btn btn-outline-danger btn-sm remove-item" title="Remove item">
                                             <i class="bi bi-trash3"></i>
@@ -70,12 +234,12 @@
                 <div class="d-flex justify-content-between align-items-center flex-wrap mt-4 p-3 rounded-3 bg-white shadow-sm">
                     <h5 class="fw-semibold mb-0">
                         <span class="text-muted">Total:</span>
-                        <span id="cartTotal" class="text-primary ms-2">
+                        <span id="cartTotal" class="ms-2" style="color: #8B5E3C;">
                             ৳@Model.Sum(c => (c.Product!.Discount.HasValue ? c.Product.Price - c.Product.Discount.Value : c.Product.Price) * c.Quantity)
                         </span>
                     </h5>
 
-                    <a class="btn btn-lg px-4 rounded-3 shadow-sm gradient-btn" asp-action="PlaceOrder" asp-controller="Order" style="background-color:purple;">
+                    <a class="btn btn-lg px-4 rounded-3 shadow-sm btn-place-order" asp-action="PlaceOrder" asp-controller="Order">
                         <i class="bi bi-bag-check-fill me-2"></i>Place Order
                     </a>
                 </div>
@@ -84,112 +248,27 @@
     </div>
 </div>
 
-<style>
-    .gradient-btn {
-        background: linear-gradient(135deg, #8a2be2, #6a0dad);
-        border: none;
-        color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
-    }
-
-        .gradient-btn:hover {
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .gradient-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(138, 43, 226, 0.3);
-        }
-    .qty-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f1f3f5;
-        border-radius: 12px;
-        width: 120px;
-        overflow: hidden;
-        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .qty-btn {
-        width: 45px;
-        height: 45px;
-        border: none;
-        background: linear-gradient(135deg, #007bff, #00c6ff);
-        color: #fff;
-        font-size: 24px;
-        font-weight: 400;
-        line-height: 1;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .qty-btn:hover {
-        background: linear-gradient(135deg, #0056b3, #0099cc);
-    }
-
-    .qty-btn:active {
-        transform: scale(0.95);
-    }
-
-    .qty-input {
-        width: 70px;
-        height: 45px;
-        border: none;
-        text-align: center;
-        font-size: 18px;
-        font-weight: 700;
-        outline: none;
-        background: #fff;
-        line-height: 45px;
-        padding: 0;
-        margin: 0;
-        vertical-align: middle;
-    }
-
-    /* Remove spinner arrows from number input */
-    .qty-input::-webkit-outer-spin-button,
-    .qty-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    .qty-input[type=number] {
-        -moz-appearance: textfield;
-    }
-
-    .btn-outline-danger {
-        width: 40px;
-        height: 40px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.3s;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: #fff;
-        transform: scale(1.15);
-        box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
-    }
-
-    #cartTable tbody tr:hover {
-        background-color: #f8f9fa;
-        transition: background-color 0.3s ease-in-out;
-    }
-</style>
-
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Toast functions
+            function showError(message) {
+                $('#errorToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#errorToast'));
+                toast.show();
+            }
+
+            function showSuccess(message) {
+                $('#successToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#successToast'));
+                toast.show();
+            }
+
+            function showWarning(message) {
+                $('#warningToastMessage').text(message);
+                var toast = new bootstrap.Toast($('#warningToast'));
+                toast.show();
+            }
 
             // Increase quantity
             $('.increase').click(function () {
@@ -207,42 +286,101 @@
             $('.remove-item').click(function () {
                 var row = $(this).closest('tr');
                 var cartId = row.data('cart-id');
+
+                // Show loading state
+                var removeBtn = $(this);
+                removeBtn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i>');
+
                 $.ajax({
                     url: '/Cart/Remove',
                     type: 'POST',
                     data: { id: cartId },
+                    dataType: 'json',
                     success: function (response) {
-                        row.fadeOut(300, function () {
-                            $(this).remove();
-                            updateCartTotal();
-                            $("#cart").text("Cart: (BDT " + response.totalCart + ")");
-                        });
+                        if (response.success) {
+                            showSuccess('Item removed from cart successfully!');
+                            row.fadeOut(300, function () {
+                                $(this).remove();
+                                updateCartTotal();
+                                if ($('#cartTable tbody tr').length === 0) {
+                                    location.reload(); // Reload to show empty cart message
+                                }
+                                if (response.totalCart !== undefined) {
+                                    $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                                }
+                            });
+                        } else {
+                            showError(response.error || 'You do not have permission to remove items.');
+                            removeBtn.prop('disabled', false).html('<i class="bi bi-trash3"></i>');
+                        }
                     },
-                    error: function () {
-                        alert('Failed to remove item.');
+                    error: function (xhr) {
+                        console.log('AJAX Error:', xhr);
+
+                        if (xhr.status === 403) {
+                            showError('You do not have permission to remove items. Viewers can only view the cart.');
+                        } else if (xhr.status === 401) {
+                            showWarning('Please login to remove items from cart.');
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            showError(xhr.responseJSON.error);
+                        } else {
+                            showError('Failed to remove item. Please try again.');
+                        }
+                        removeBtn.prop('disabled', false).html('<i class="bi bi-trash3"></i>');
                     }
                 });
             });
 
+            // Update quantity
             function updateQuantity(row, change) {
                 var input = row.find('.qty-input');
-                var qty = parseInt(input.val());
-                qty = Math.min(99, Math.max(1, qty + change));
-                input.val(qty);
+                var oldQty = parseInt(input.val());
+                var qty = Math.min(99, Math.max(1, oldQty + change));
 
+                if (oldQty === qty) return;
+
+                input.val(qty);
                 var cartId = row.data('cart-id');
+
+                // Show loading state
+                var btns = row.find('.qty-btn');
+                btns.prop('disabled', true);
 
                 $.ajax({
                     url: '/Cart/UpdateQuantity',
                     type: 'POST',
                     data: { id: cartId, quantity: qty },
+                    dataType: 'json',
                     success: function (response) {
-                        updateItemTotal(row, qty);
-                        updateCartTotal();
-                        $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                        if (response.success) {
+                            updateItemTotal(row, qty);
+                            updateCartTotal();
+                            if (response.totalCart !== undefined) {
+                                $("#cart").text("Cart: (BDT " + response.totalCart + ")");
+                            }
+                            showSuccess('Quantity updated successfully!');
+                        } else {
+                            showError(response.error || 'Failed to update quantity.');
+                            input.val(oldQty);
+                        }
+                        btns.prop('disabled', false);
                     },
-                    error: function () {
-                        alert('Failed to update quantity.');
+                    error: function (xhr) {
+                        console.log('AJAX Error:', xhr);
+
+                        if (xhr.status === 403) {
+                            showError('You do not have permission to update cart quantities.');
+                        } else if (xhr.status === 401) {
+                            showWarning('Please login to update cart quantities.');
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            showError(xhr.responseJSON.error);
+                        } else {
+                            showError('Failed to update quantity. Please try again.');
+                        }
+
+                        // Revert the quantity change
+                        input.val(oldQty);
+                        btns.prop('disabled', false);
                     }
                 });
             }
@@ -250,7 +388,8 @@
             function updateItemTotal(row, qty) {
                 var priceText = row.find('td:nth-child(2)').text().replace(/[^\d]/g, '');
                 var price = parseInt(priceText);
-                row.find('.item-total').text('৳' + (price * qty));
+                var total = price * qty;
+                row.find('.item-total').text('৳' + total);
             }
 
             function updateCartTotal() {
@@ -260,7 +399,7 @@
                     total += parseInt(itemTotal);
                 });
                 $('#cartTotal').text('৳' + total);
-            }            
+            }
         });
     </script>
 }

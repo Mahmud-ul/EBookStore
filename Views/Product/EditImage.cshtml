@@ -16,7 +16,7 @@
             <div class="col-md-6">
                 <p><span class="fw-semibold">Name: </span>@Model.Name</p>
                 <p><span class="fw-semibold">Price: </span>@Model.Price</p>
-                <p><span class="fw-semibold">Description: </span>@Model.Description</p>
+                <p><span class="fw-semibold">Description: </span>@(Model.Description?.Length > 100 ? Model.Description.Substring(0, 100) + "..." : Model.Description ?? "")</p>
             </div>
             <div class="col-md-6 d-flex align-items-center">
                 <div class="ms-auto me-3">

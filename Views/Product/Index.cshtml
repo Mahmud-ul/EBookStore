@@ -114,7 +114,7 @@
                 @Html.DisplayFor(modelItem => item.Topic)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Description)
+                @(item.Description?.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description ?? "")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Featured)

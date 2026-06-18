@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>BookSaw - Free Book Store HTML CSS Template</title>
+	<title>BookFlow</title>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,6 +96,20 @@
 		.hoverItem:hover {
 			color: #d2a679;
 		}
+		.search-submit-btn:hover {
+    background: #c4956a !important;
+    transition: all 0.3s ease;
+}
+
+/* Or for the icon-only button */
+.search-box button i {
+    font-size: 18px;
+}
+
+.search-box button:hover i {
+    color: #c4956a;
+}
+
 		@RenderSection("Styles", required: false)
 	</style>
 </head>
@@ -113,7 +127,6 @@
 		var Cart = Context.Session.GetInt32("Cart") ?? 0;
 	}
 	<div id="header-wrap">
-
 		<div class="top-content">
 			<div class="container-fluid">
 				<div class="row">
@@ -170,13 +183,21 @@
 							</a>
 							<div class="action-menu">
 								<div class="search-bar">
-									<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
-										<i class="icon icon-search"></i>
-									</a>
-									<form role="search" method="get" class="search-box" asp-action="ProductList" asp-controller="Product">
-										<input class="search-field text search-input" placeholder="Search"
-											   type="search" name="search">
-									</form>
+									<div class="search-bar">
+										<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
+											<i class="icon icon-search"></i>
+										</a>
+										<form role="search" method="get" class="search-box" asp-action="ProductList" asp-controller="Product" id="searchForm">
+											<div style="position: relative; display: flex;">
+												<input class="search-field text search-input" placeholder="Search"
+													   type="search" name="search" id="searchInput" 
+													   style="padding-right: 40px; width: 100%;">
+												<button type="submit">
+													<i class="icon icon-search"></i>
+												</button>
+											</div>
+										</form>
+									</div>
 								</div>
 							</div>
 						</div><!--top-right-->
@@ -190,10 +211,9 @@
 				<div class="row">
 
 					<div class="col-md-2">
-						<div class="main-logo">
-							<a href="index.html"><img src="~/images/main-logo.png" alt="logo"></a>
+						<div class="py-0 my-0">
+							<a asp-action="Index" asp-controller="Home"><span style="font-size:30px;">BookFlow</span></a>
 						</div>
-
 					</div>
 
 					<div class="col-md-10">
@@ -201,23 +221,54 @@
 						<nav id="navbar">
 							<div class="main-menu stellarnav">
 								<ul class="menu-list">
-									<li class="menu-item active"><a asp-action="Index" asp-controller="Home">Home</a></li>
-									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" class="nav-link">Books</a></li>
+									<li class="menu-item">
+										<a asp-action="Index" asp-controller="Home" 
+										   class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+										   Home
+										</a>
+									</li>
+    
+									<li class="menu-item">
+										<a asp-action="ProductList" asp-controller="Product" 
+										   class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" && ViewContext.RouteData.Values["Action"]?.ToString() == "ProductList" ? "active" : "")">
+										   Books
+										</a>
+									</li>
+    
 									<li class="menu-item has-sub">
 										<a href="#pages" class="nav-link">Category</a>
 										<ul>
 											@await Component.InvokeAsync("Menu", new {type = "Category"})
 										</ul>
 									</li>
+    
 									<li class="menu-item has-sub">
 										<a href="#pages" class="nav-link">Author</a>
 										<ul>
 											@await Component.InvokeAsync("Menu", new { type = "Author" })
 										</ul>
 									</li>
-									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" asp-route-IsNew="True" class="nav-link">New</a></li>									
-									<li class="menu-item"><a asp-action="ProductList" asp-controller="Product" asp-route-discount="True" class="nav-link">Offer</a></li>
-									<li class="menu-item"><a asp-action="OrderList" asp-controller="Order" class="nav-link">Orders</a></li>
+    
+									<li class="menu-item">
+										<a asp-action="ProductList" asp-controller="Product" asp-route-IsNew="True" 
+										   class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" && ViewContext.RouteData.Values["Action"]?.ToString() == "ProductList" && Context.Request.Query["IsNew"] == "True" ? "active" : "")">
+										   New
+										</a>
+									</li>
+    
+									<li class="menu-item">
+										<a asp-action="ProductList" asp-controller="Product" asp-route-discount="True" 
+										   class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Product" && ViewContext.RouteData.Values["Action"]?.ToString() == "ProductList" && Context.Request.Query["discount"] == "True" ? "active" : "")">
+										   Offer
+										</a>
+									</li>
+    
+									<li class="menu-item">
+										<a asp-action="OrderList" asp-controller="Order" 
+										   class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Order" && ViewContext.RouteData.Values["Action"]?.ToString() == "OrderList" ? "active" : "")">
+										   Orders
+										</a>
+									</li>
 								</ul>
 
 								<div class="hamburger">
@@ -273,14 +324,14 @@
 	<style>
 		/* Footer Design */
 		.custom-footer {
-			background: linear-gradient(135deg, #d0f8ce, #a3e9a4);
-			color: #1b5e20;
+			background: #EDEBE4;
+			color: #757575;
 			box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
 			font-size: 14px;
 		}
 
 		.footer-container {
-			max-width: 1200px;
+			max-width: 100%;
 			margin: 0 auto;
 		}
 
@@ -319,6 +370,15 @@
 		}
 
 		}
+		/* Simple fix - align items vertically in the header row */
+#header .row {
+    align-items: center !important;
+}
+
+/* Ensure nav container fills height properly */
+#header .col-md-10 {
+    align-self: center;
+}
 	</style>
 	<!-- 1. jQuery FIRST -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

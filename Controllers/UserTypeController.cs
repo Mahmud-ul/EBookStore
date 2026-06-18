@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EBookStore.Models;
 using EBookStore.Models.Database;
+using EBookStore.Models.Filters;
 
 namespace EBookStore.Controllers
 {
@@ -171,6 +172,71 @@ namespace EBookStore.Controllers
         private bool UserTypeExists(int id)
         {
             return _context.UserTypes.Any(e => e.ID == id);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RolePermission(int id)
+        {
+            UserType? type = await _context.UserTypes.FindAsync(id);
+
+            if(type != null)
+            {
+                IEnumerable<ActionRoute> actions = await _context.ActionRoutes.Where(w=>w.Status).ToListAsync();
+
+                IEnumerable<RolePermission> permissions = await _context.RolePermissions.Where(w=>w.RoleID == id).ToListAsync();   
+                
+                AssignRolePermissionCreateModel assign = new AssignRolePermissionCreateModel
+                {
+                    Role = type,
+                    RolePermissions = permissions,
+                    ActionRoutes = actions
+                };
+
+                return View(assign);
+            }
+
+            TempData["Error"] = "User role not found!";
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RolePermission(int RoleId, List<int> PermissionIds)
+        {
+            try
+            {
+                // Remove existing permissions for this role
+                var existingPermissions = _context.RolePermissions.Where(rp => rp.RoleID == RoleId);
+                _context.RolePermissions.RemoveRange(existingPermissions);
+
+                if (PermissionIds != null && PermissionIds.Any())
+                {
+                    // Add new permissions
+                    foreach (var permissionId in PermissionIds)
+                    {
+                        var rolePermission = new RolePermission
+                        {
+                            RoleID = RoleId,
+                            ActionRouteID = permissionId
+                        };
+                        _context.RolePermissions.Add(rolePermission);
+                    }
+                }
+
+                int save = await _context.SaveChangesAsync();
+
+                if (save > 0)
+                    TempData["Success"] = "Permissions saved successfully";
+                else
+                    TempData["Error"] = "Permission assigning failed. Please try again later!";
+
+                return RedirectToAction("Index", "UserType");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "UserType");
+            }
         }
     }
 }
