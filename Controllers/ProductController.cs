@@ -25,6 +25,9 @@ namespace EBookStore.Controllers
         // GET: Product
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.Products.Include(p => p.Author).Include(p => p.Category).Include(p => p.Cover).Include(p => p.Publisher);
             return View(await connectionString.ToListAsync());
         }
@@ -32,6 +35,9 @@ namespace EBookStore.Controllers
         // GET: Product/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -54,6 +60,9 @@ namespace EBookStore.Controllers
         // GET: Product/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["AuthorID"] = new SelectList(_context.Authors.Where(w => w.Status), "ID", "Name");
             ViewData["CategoryID"] = new SelectList(_context.Categories.Where(w=>w.MainCatID!=null && w.Status), "ID", "Name");
             ViewData["CoverID"] = new SelectList(_context.Covers.Where(w => w.Status), "ID", "Name");
@@ -68,6 +77,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Image,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,Popular,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] ProductCreateModel product)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             try
             {
                 bool check = _context.Products.Any(a => a.Name == product.Name);
@@ -102,7 +114,7 @@ namespace EBookStore.Controllers
                             product.Image.CopyTo(stream);
                         }
 
-                        imagePath = "/Image/product/" + fileName; // Relative path for <img src="">
+                        imagePath = "/Image/Product/" + fileName; // Relative path for <img src="">
                     }
 
                     Product product2 = new Product
@@ -147,6 +159,9 @@ namespace EBookStore.Controllers
         // GET: Product/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -171,6 +186,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CategoryID,AuthorID,PublisherID,CoverID,Price,Discount,PageQuantity,Topic,Description,Featured,Popular,New,PreOrderable,InStock,BestSeller,SlideShow,Status")] Product product)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != product.ID)
             {
                 return NotFound();
@@ -227,6 +245,9 @@ namespace EBookStore.Controllers
 
         public async Task<IActionResult> EditImage(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (HttpContext.Session.GetString("UserType") != "Admin")
                 return RedirectToAction("Index", "Home");
 
@@ -245,6 +266,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditImage(int id, IFormFile image)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (HttpContext.Session.GetString("UserType") != "Admin")
                 return RedirectToAction("Index", "Home");
 
@@ -353,6 +377,9 @@ namespace EBookStore.Controllers
         // GET: Product/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -377,6 +404,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             try
             {
                 var product = await _context.Products.FindAsync(id);

@@ -1,53 +1,71 @@
 ﻿@model EBookStore.Models.CreateModel.PageCreateModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Page";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Card header -->
+        <div class="card-header text-white rounded-top-4" style="background: linear-gradient(90deg, #0d6efd, #6610f2);">
+            <h4 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i> Create Page</h4>
+        </div>
 
-<h4>Page</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ProductID" class="control-label"></label>
-                <select asp-for="ProductID" class ="form-control" asp-items="ViewBag.ProductID"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="PageNumber" class="control-label"></label>
-                <input asp-for="PageNumber" class="form-control" />
-                <span asp-validation-for="PageNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
-                </label>
-            </div>
-            <div class="col-md-6">
-                <label><b><i>Choose an image:</i></b></label>
-                <input type="file" asp-for="Image" id="selectedImage" accept="image/*" />
-            </div>
+        <!-- Card body -->
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="col-md-6" id="preview"></div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                <!-- Product selection -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Product</label>
+                    <select asp-for="ProductID" class="form-control rounded shadow-sm" asp-items="ViewBag.ProductID">
+                        <option value="">--Select Product--</option>
+                    </select>
+                </div>
+
+                <!-- Page Number -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Page Number</label>
+                    <input asp-for="PageNumber" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="PageNumber" class="text-danger"></span>
+                </div>
+
+                <!-- Status checkbox -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" asp-for="Status" />
+                    <label class="form-check-label fw-semibold">
+                        @Html.DisplayNameFor(model => model.Status)
+                    </label>
+                </div>
+
+                <!-- Image upload -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="fw-semibold"><i>Choose an image:</i></label>
+                        <input type="file" asp-for="Image" id="selectedImage" accept="image/*" class="form-control" />
+                    </div>
+                    <div class="col-md-6" id="preview"></div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-3 mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-save2-fill me-1"></i> Create
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @@await Html.RenderPartialAsync("_ValidationScriptsPartial")
+
     <script>
         //Preview Image
         $(document).ready(function () {
@@ -58,13 +76,12 @@
                     var reader = new FileReader();
 
                     reader.onload = function (e) {
-                        // Display the image in the preview div
-                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid" style="max-height:100px;" />');
+                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid rounded shadow-sm" style="max-height:100px;" />');
                     }
 
-                    reader.readAsDataURL(input.files[0]); // Convert file to base64 URL
+                    reader.readAsDataURL(input.files[0]);
                 } else {
-                    $("#preview").html(''); // Clear preview if no file
+                    $("#preview").html('');
                 }
             });
         });

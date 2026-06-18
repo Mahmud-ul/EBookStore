@@ -22,12 +22,18 @@ namespace EBookStore.Controllers
         // GET: PaymentMethod
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             return View(await _context.PaymentMethods.ToListAsync());
         }
 
         // GET: PaymentMethod/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -46,6 +52,9 @@ namespace EBookStore.Controllers
         // GET: PaymentMethod/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             return View();
         }
 
@@ -56,6 +65,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Status")] PaymentMethod paymentMethod)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             try
             {
                 bool check = _context.Authors.Any(a => a.Name == paymentMethod.Name);
@@ -83,6 +95,9 @@ namespace EBookStore.Controllers
         // GET: PaymentMethod/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -103,6 +118,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Status")] PaymentMethod paymentMethod)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != paymentMethod.ID)
             {
                 return NotFound();
@@ -140,6 +158,9 @@ namespace EBookStore.Controllers
         // GET: PaymentMethod/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -160,6 +181,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var paymentMethod = await _context.PaymentMethods.FindAsync(id);
             if (paymentMethod != null)
             {

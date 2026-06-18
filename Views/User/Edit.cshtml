@@ -1,58 +1,77 @@
 ﻿@model EBookStore.Models.User
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit User";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Card header -->
+        <div class="card-header text-white rounded-top-4" style="background: linear-gradient(90deg, #0d6efd, #6610f2);">
+            <h4 class="mb-0"><i class="bi bi-person-fill me-2"></i> Edit User</h4>
+        </div>
 
-<h4>User</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />            
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>         
-            <div class="form-group">
-                <label asp-for="UserTypeID" class="control-label">User Type</label>
-                <select asp-for="UserTypeID" class="form-control" asp-items="ViewBag.UserTypeID">
-                    <option value="0">-- Select User Type --</option>
-                </select>
-                <span asp-validation-for="UserTypeID" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
-                </label>
-            </div>
-            <input type="hidden" asp-for="Password" value="abcdef" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        <!-- Card body -->
+        <div class="card-body p-4">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="Password" value="abcdef" />
+
+                <!-- Name -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label fw-semibold"></label>
+                    <input asp-for="Email" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label fw-semibold"></label>
+                    <input asp-for="Phone" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+
+                <!-- User Type -->
+                <div class="mb-3">
+                    <label asp-for="UserTypeID" class="form-label fw-semibold">User Type</label>
+                    <select asp-for="UserTypeID" class="form-control rounded shadow-sm" asp-items="ViewBag.UserTypeID">
+                        <option value="0">-- Select User Type --</option>
+                    </select>
+                    <span asp-validation-for="UserTypeID" class="text-danger"></span>
+                </div>
+
+                <!-- Status -->
+                <div class="mb-3 form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                    </label>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex gap-3 mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-save2-fill me-1"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

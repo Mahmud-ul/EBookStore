@@ -23,6 +23,9 @@ namespace EBookStore.Controllers
         // GET: Page
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.Pages.Include(p => p.Product);
             return View(await connectionString.ToListAsync());
         }
@@ -30,6 +33,9 @@ namespace EBookStore.Controllers
         // GET: Page/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["ProductID"] = new SelectList(_context.Products, "ID", "Name");
             return View();
         }
@@ -41,6 +47,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,ProductID,PageNumber,Image,Status")] PageCreateModel page)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             try
             {
                 bool check = await _context.Pages.AnyAsync(w => w.ProductID == page.ProductID && w.PageNumber == page.PageNumber);
@@ -98,6 +107,9 @@ namespace EBookStore.Controllers
         // GET: Page/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -119,6 +131,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,ProductID,PageNumber,Status")] Page page)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != page.ID)
             {
                 return NotFound();
@@ -167,6 +182,9 @@ namespace EBookStore.Controllers
 
         public async Task<IActionResult> EditImage(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (HttpContext.Session.GetString("UserType") != "Admin")
                 return RedirectToAction("Index", "Home");
 
@@ -185,6 +203,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditImage(int id, IFormFile image)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (HttpContext.Session.GetString("UserType") != "Admin")
                 return RedirectToAction("Index", "Home");
 
@@ -293,6 +314,9 @@ namespace EBookStore.Controllers
         // GET: Page/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -314,6 +338,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var page = await _context.Pages.FindAsync(id);
             if (page != null)
             {

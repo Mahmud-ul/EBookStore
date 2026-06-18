@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 using EBookStore.Models.Database;
 using EBookStore.Models.Filters;
+=======
+﻿using EBookStore.Models.Database;
+>>>>>>> 199720b95032cbd73f24c22ad0fcacea95219641
 using EBookStore.Utility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -40,6 +44,8 @@ builder.Services.AddSession(option =>
 });
 
 var app = builder.Build();
+
+app.UseStaticFiles(); // ✅ This must exist before UseRouting/UseAuthorization
 
 //Session-2
 app.UseSession();

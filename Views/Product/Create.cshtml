@@ -1,148 +1,180 @@
 ﻿@model EBookStore.Models.CreateModel.ProductCreateModel
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Product";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Card header -->
+        <div class="card-header text-white rounded-top-4" style="background: linear-gradient(90deg, #0d6efd, #6610f2);">
+            <h4 class="mb-0">
+                <i class="bi bi-box-seam me-2"></i> Create Product
+            </h4>
+        </div>
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>            
-            <div class="form-group">
-                <label class="control-label">Category</label>
-                <select asp-for="CategoryID" class ="form-control" asp-items="ViewBag.CategoryID">
-                    <option value="0">--Select Category--</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Author</label>
-                <select asp-for="AuthorID" class ="form-control" asp-items="ViewBag.AuthorID">
-                    <option value="0">--Select Author--</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Publisher</label>
-                <select asp-for="PublisherID" class ="form-control" asp-items="ViewBag.PublisherID">
-                    <option value="0">--Select Publisher--</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Cover</label>
-                <select asp-for="CoverID" class ="form-control" asp-items="ViewBag.CoverID">
-                    <option value="0">--Select Cover--</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Discount" class="control-label"></label>
-                <input asp-for="Discount" class="form-control" />
-                <span asp-validation-for="Discount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Page Quantity</label>
-                <input asp-for="PageQuantity" class="form-control" />
-                <span asp-validation-for="PageQuantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Topic" class="control-label"></label>
-                <input asp-for="Topic" class="form-control" />
-                <span asp-validation-for="Topic" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Featured" /> @Html.DisplayNameFor(model => model.Featured)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Popular" /> @Html.DisplayNameFor(model => model.Popular)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="New" /> @Html.DisplayNameFor(model => model.New)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="PreOrderable" /> @Html.DisplayNameFor(model => model.PreOrderable)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="InStock" /> @Html.DisplayNameFor(model => model.InStock)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="BestSeller" /> @Html.DisplayNameFor(model => model.BestSeller)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="SlideShow" /> @Html.DisplayNameFor(model => model.SlideShow)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
-                </label>
-            </div>
-            <div class="col-md-6">
-                <label><b><i>Choose an image:</i></b></label>
-                <input type="file" asp-for="Image" id="selectedImage" accept="image/*" />
-            </div>
+        <!-- Card body -->
+        <div class="card-body p-4">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="col-md-6" id="preview"></div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                <!-- Text Inputs -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control rounded shadow-sm" placeholder="Enter product name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Category</label>
+                        <select asp-for="CategoryID" class="form-control rounded shadow-sm" asp-items="ViewBag.CategoryID">
+                            <option value="0">--Select Category--</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Author</label>
+                        <select asp-for="AuthorID" class="form-control rounded shadow-sm" asp-items="ViewBag.AuthorID">
+                            <option value="0">--Select Author--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Publisher</label>
+                        <select asp-for="PublisherID" class="form-control rounded shadow-sm" asp-items="ViewBag.PublisherID">
+                            <option value="0">--Select Publisher--</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Cover</label>
+                        <select asp-for="CoverID" class="form-control rounded shadow-sm" asp-items="ViewBag.CoverID">
+                            <option value="0">--Select Cover--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Price" class="form-label fw-semibold"></label>
+                        <input asp-for="Price" class="form-control rounded shadow-sm" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Discount" class="form-label fw-semibold"></label>
+                        <input asp-for="Discount" class="form-control rounded shadow-sm" />
+                        <span asp-validation-for="Discount" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Page Quantity</label>
+                        <input asp-for="PageQuantity" class="form-control rounded shadow-sm" />
+                        <span asp-validation-for="PageQuantity" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Topic" class="form-label fw-semibold"></label>
+                    <input asp-for="Topic" class="form-control rounded shadow-sm" />
+                    <span asp-validation-for="Topic" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control rounded shadow-sm"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="Featured" id="featuredCheck" />
+                            <label class="form-check-label" for="featuredCheck">@Html.DisplayNameFor(m => m.Featured)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="Popular" id="popularCheck" />
+                            <label class="form-check-label" for="popularCheck">@Html.DisplayNameFor(m => m.Popular)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="New" id="newCheck" />
+                            <label class="form-check-label" for="newCheck">@Html.DisplayNameFor(m => m.New)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="PreOrderable" id="preOrderCheck" />
+                            <label class="form-check-label" for="preOrderCheck">@Html.DisplayNameFor(m => m.PreOrderable)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="InStock" id="inStockCheck" />
+                            <label class="form-check-label" for="inStockCheck">@Html.DisplayNameFor(m => m.InStock)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="BestSeller" id="bestSellerCheck" />
+                            <label class="form-check-label" for="bestSellerCheck">@Html.DisplayNameFor(m => m.BestSeller)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="SlideShow" id="slideShowCheck" />
+                            <label class="form-check-label" for="slideShowCheck">@Html.DisplayNameFor(m => m.SlideShow)</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="Status" id="statusCheck" />
+                            <label class="form-check-label" for="statusCheck">@Html.DisplayNameFor(m => m.Status)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image upload -->
+                <div class="mb-3 row">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold"><i>Choose an image:</i></label>
+                        <input type="file" asp-for="Image" id="selectedImage" accept="image/*" class="form-control rounded" />
+                    </div>
+                    <div class="col-md-6" id="preview"></div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left-circle me-1"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-save2-fill me-1"></i> Create
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @@await Html.RenderPartialAsync("_ValidationScriptsPartial")
+
     <script>
-        //Preview Image
         $(document).ready(function () {
             $("#selectedImage").change(function (event) {
                 var input = event.target;
-
                 if (input.files && input.files[0]) {
                     var reader = new FileReader();
-
                     reader.onload = function (e) {
-                        // Display the image in the preview div
-                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid" style="max-height:100px;" />');
+                        $("#preview").html('<img src="' + e.target.result + '" class="img-fluid rounded" style="max-height:100px;" />');
                     }
-
-                    reader.readAsDataURL(input.files[0]); // Convert file to base64 URL
+                    reader.readAsDataURL(input.files[0]);
                 } else {
-                    $("#preview").html(''); // Clear preview if no file
+                    $("#preview").html('');
                 }
             });
         });

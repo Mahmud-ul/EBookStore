@@ -1,472 +1,173 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Admin Dashboard";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-@section Styles {
-    <style>
-        .dashboard-section {
-            padding: 30px 20px;
-            background: #f8f9fa;
-            min-height: calc(100vh - 200px);
-        }
+<div class="container-fluid my-1">
 
-        .page-header {
-            margin-bottom: 30px;
-        }
+    <!-- Welcome Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-speedometer2 me-2"></i> Dashboard</h2>
+        <span class="text-muted fs-6">Welcome back, Admin!</span>
+    </div>
 
-            .page-header h1 {
-                font-size: 28px;
-                font-weight: 700;
-                color: #2c3e50;
-                margin-bottom: 5px;
-            }
+    <!-- Summary Cards -->
+    <div class="row g-4 mb-4">
 
-            .page-header p {
-                color: #7f8c8d;
-                font-size: 14px;
-            }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .stat-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.12);
-            }
-
-            .stat-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 4px;
-                height: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-
-            .stat-card.card-orders::before {
-                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            }
-
-            .stat-card.card-revenue::before {
-                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            }
-
-            .stat-card.card-customers::before {
-                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .card-orders .stat-icon {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .card-revenue .stat-icon {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .card-customers .stat-icon {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .stat-change {
-            font-size: 12px;
-            margin-top: 8px;
-        }
-
-            .stat-change.positive {
-                color: #27ae60;
-            }
-
-            .stat-change.negative {
-                color: #e74c3c;
-            }
-
-        /* Content Grid */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        @@media (max-width: 992px) {
-            .content-grid
-
-        {
-            grid-template-columns: 1fr;
-        }
-
-        }
-
-        .dashboard-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-            .card-header h3 {
-                font-size: 18px;
-                font-weight: 600;
-                color: #2c3e50;
-                margin: 0;
-            }
-
-        .view-all {
-            color: #667eea;
-            font-size: 14px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-            .view-all:hover {
-                color: #764ba2;
-            }
-
-        /* Recent Orders Table */
-        .orders-table {
-            width: 100%;
-        }
-
-            .orders-table th {
-                text-align: left;
-                color: #7f8c8d;
-                font-size: 12px;
-                font-weight: 600;
-                text-transform: uppercase;
-                padding-bottom: 12px;
-                border-bottom: 2px solid #f0f0f0;
-            }
-
-            .orders-table td {
-                padding: 15px 0;
-                border-bottom: 1px solid #f0f0f0;
-                color: #2c3e50;
-                font-size: 14px;
-            }
-
-        .order-id {
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-completed {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-processing {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            gap: 12px;
-        }
-
-        .action-btn {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #2c3e50;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-            .action-btn:hover {
-                background: white;
-                border-color: #667eea;
-                color: #667eea;
-                transform: translateX(5px);
-            }
-
-            .action-btn i {
-                margin-right: 12px;
-                font-size: 20px;
-            }
-
-        /* Top Products */
-        .product-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-            .product-item:last-child {
-                border-bottom: none;
-            }
-
-        .product-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-right: 15px;
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 14px;
-            margin-bottom: 3px;
-        }
-
-        .product-sales {
-            color: #7f8c8d;
-            font-size: 12px;
-        }
-
-        .product-price {
-            font-weight: 600;
-            color: #667eea;
-        }
-    </style>
-}
-
-<div class="dashboard-section">
-    <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1>Dashboard Overview</h1>
-            <p>Welcome back! Here's what's happening with your store today.</p>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="icon icon-book"></i>
-                </div>
-                <div class="stat-value">1,247</div>
-                <div class="stat-label">Total Products</div>
-                <div class="stat-change positive">↑ 12% from last month</div>
-            </div>
-
-            <div class="stat-card card-orders">
-                <div class="stat-icon">
-                    <i class="icon icon-clipboard"></i>
-                </div>
-                <div class="stat-value">342</div>
-                <div class="stat-label">Total Orders</div>
-                <div class="stat-change positive">↑ 8% from last month</div>
-            </div>
-
-            <div class="stat-card card-revenue">
-                <div class="stat-icon">
-                    <i class="icon icon-basket"></i>
-                </div>
-                <div class="stat-value">BDT 45,230</div>
-                <div class="stat-label">Total Revenue</div>
-                <div class="stat-change positive">↑ 23% from last month</div>
-            </div>
-
-            <div class="stat-card card-customers">
-                <div class="stat-icon">
-                    <i class="icon icon-user"></i>
-                </div>
-                <div class="stat-value">892</div>
-                <div class="stat-label">Total Customers</div>
-                <div class="stat-change positive">↑ 5% from last month</div>
-            </div>
-        </div>
-
-        <!-- Content Grid -->
-        <div class="content-grid">
-            <!-- Recent Orders -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>Recent Orders</h3>
-                    <a href="#" class="view-all">View All →</a>
-                </div>
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="order-id">#ORD-2547</span></td>
-                            <td>John Doe</td>
-                            <td>BDT 1,250</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="order-id">#ORD-2546</span></td>
-                            <td>Jane Smith</td>
-                            <td>BDT 890</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="order-id">#ORD-2545</span></td>
-                            <td>Mike Johnson</td>
-                            <td>BDT 2,100</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="order-id">#ORD-2544</span></td>
-                            <td>Sarah Williams</td>
-                            <td>BDT 1,450</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td><span class="order-id">#ORD-2543</span></td>
-                            <td>David Brown</td>
-                            <td>BDT 750</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Sidebar -->
-            <div>
-                <!-- Quick Actions -->
-                <div class="dashboard-card" style="margin-bottom: 20px;">
-                    <div class="card-header">
-                        <h3>Quick Actions</h3>
-                    </div>
-                    <div class="quick-actions">
-                        <a href="#" class="action-btn">
-                            <i class="icon icon-plus"></i>
-                            Add New Product
-                        </a>
-                        <a href="#" class="action-btn">
-                            <i class="icon icon-clipboard"></i>
-                            View All Orders
-                        </a>
-                        <a href="#" class="action-btn">
-                            <i class="icon icon-user"></i>
-                            Manage Customers
-                        </a>
-                        <a href="#" class="action-btn">
-                            <i class="icon icon-social-dropbox"></i>
-                            Manage Categories
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Top Products -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h3>Top Products</h3>
-                        <a href="#" class="view-all">View All →</a>
-                    </div>
+        <!-- Total Authors -->
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg rounded-4" style="background: linear-gradient(135deg,#6f42c1,#6610f2);">
+                <div class="card-body d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="product-item">
-                            <img src="~/images/product1.jpg" alt="Product" class="product-img">
-                            <div class="product-info">
-                                <div class="product-name">The Great Gatsby</div>
-                                <div class="product-sales">145 sales</div>
-                            </div>
-                            <div class="product-price">BDT 450</div>
-                        </div>
-                        <div class="product-item">
-                            <img src="~/images/product2.jpg" alt="Product" class="product-img">
-                            <div class="product-info">
-                                <div class="product-name">1984</div>
-                                <div class="product-sales">132 sales</div>
-                            </div>
-                            <div class="product-price">BDT 380</div>
-                        </div>
-                        <div class="product-item">
-                            <img src="~/images/product3.jpg" alt="Product" class="product-img">
-                            <div class="product-info">
-                                <div class="product-name">To Kill a Mockingbird</div>
-                                <div class="product-sales">128 sales</div>
-                            </div>
-                            <div class="product-price">BDT 420</div>
-                        </div>
-                        <div class="product-item">
-                            <img src="~/images/product4.jpg" alt="Product" class="product-img">
-                            <div class="product-info">
-                                <div class="product-name">Pride and Prejudice</div>
-                                <div class="product-sales">115 sales</div>
-                            </div>
-                            <div class="product-price">BDT 390</div>
-                        </div>
+                        <h5 class="card-title">Authors</h5>
+                        <h3 class="fw-bold">@ViewBag.TotalAuthors</h3>
                     </div>
+                    <i class="bi bi-pen-fill fs-2 opacity-75"></i>
                 </div>
             </div>
+        </div>
+
+        <!-- Total Users -->
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg rounded-4" style="background: linear-gradient(135deg,#20c997,#0dcaf0);">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title">Users</h5>
+                        <h3 class="fw-bold">@ViewBag.TotalUsers</h3>
+                    </div>
+                    <i class="bi bi-people-fill fs-2 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Products -->
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg rounded-4" style="background: linear-gradient(135deg,#fd7e14,#ffc107);">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title">Products</h5>
+                        <h3 class="fw-bold">@ViewBag.TotalProducts</h3>
+                    </div>
+                    <i class="bi bi-box-seam fs-2 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="col-md-3">
+            <div class="card text-white shadow-lg rounded-4" style="background: linear-gradient(135deg,#dc3545,#ff6b6b);">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="card-title">Orders</h5>
+                        <h3 class="fw-bold">@ViewBag.TotalOrders</h3>
+                    </div>
+                    <i class="bi bi-bag-fill fs-2 opacity-75"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+
+        <!-- Orders Status Chart -->
+        <div class="col-lg-6">
+            <div class="card shadow-lg rounded-4">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="bi bi-graph-up me-2"></i> Orders Status
+                </div>
+                <div class="card-body">
+                    <canvas id="ordersStatusChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products & Users Trend -->
+        <div class="col-lg-6">
+            <div class="card shadow-lg rounded-4">
+                <div class="card-header bg-dark text-white d-flex align-items-center">
+                    <i class="bi bi-bar-chart-line me-2"></i> Products & Users Trend
+                </div>
+                <div class="card-body">
+                    <canvas id="productsUsersChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <a href="@Url.Action("Create", "Author")" class="btn btn-primary w-100 rounded-pill shadow-lg py-3">
+                <i class="bi bi-plus-circle me-2"></i> Add Author
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Create", "Product")" class="btn btn-warning w-100 rounded-pill shadow-lg py-3 text-white">
+                <i class="bi bi-plus-circle me-2"></i> Add Product
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Create", "User")" class="btn btn-success w-100 rounded-pill shadow-lg py-3">
+                <i class="bi bi-plus-circle me-2"></i> Add User
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Create", "Order")" class="btn btn-danger w-100 rounded-pill shadow-lg py-3">
+                <i class="bi bi-plus-circle me-2"></i> Add Order
+            </a>
         </div>
     </div>
+
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Orders Status Pie Chart
+        const ordersStatusCtx = document.getElementById('ordersStatusChart').getContext('2d');
+        new Chart(ordersStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'On Process', 'Delivered', 'Canceled'],
+                datasets: [{
+                    label: 'Orders Status',
+                    data: @Html.Raw(Json.Serialize(ViewBag.OrdersStatusData)),
+                    backgroundColor: ['#ffc107', '#0dcaf0', '#198754', '#dc3545'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Products & Users Trend Line Chart
+        const productsUsersCtx = document.getElementById('productsUsersChart').getContext('2d');
+        new Chart(productsUsersCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.Months)),
+                datasets: [
+                    {
+                        label: 'Products',
+                        data: @Html.Raw(Json.Serialize(ViewBag.ProductsTrend)),
+                        borderColor: '#ffc107',
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Users',
+                        data: @Html.Raw(Json.Serialize(ViewBag.UsersTrend)),
+                        borderColor: '#0dcaf0',
+                        fill: false,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: { responsive: true }
+        });
+    </script>
+}

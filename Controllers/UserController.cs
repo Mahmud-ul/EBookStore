@@ -22,6 +22,9 @@ namespace EBookStore.Controllers
         // GET: User
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.Users.Include(u => u.UserType);
             return View(await connectionString.ToListAsync());
         }
@@ -29,6 +32,9 @@ namespace EBookStore.Controllers
         // GET: User/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -61,6 +67,9 @@ namespace EBookStore.Controllers
         // GET: User/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["UserTypeID"] = new SelectList(_context.UserTypes, "ID", "Name");
             return View();
         }
@@ -72,6 +81,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Name,Email,Phone,Password,Status,UserTypeID")] User user)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(user);
@@ -85,6 +97,9 @@ namespace EBookStore.Controllers
         // GET: User/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -106,6 +121,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Email,Phone,Status,UserTypeID,Password")] User user)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != user.ID)
             {
                 return NotFound();
@@ -148,6 +166,9 @@ namespace EBookStore.Controllers
         // GET: User/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -169,6 +190,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
@@ -181,6 +205,9 @@ namespace EBookStore.Controllers
         [HttpGet]
         public IActionResult ResetPassword(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             bool check = _context.Users.Any(e => e.ID == id);
 
             if (check)
@@ -197,7 +224,10 @@ namespace EBookStore.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult ResetPassword(int id, string password, string confirmPassword)
-        { 
+        {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (password == confirmPassword)
             {
                 User? user = _context.Users.FirstOrDefault(e => e.ID == id);

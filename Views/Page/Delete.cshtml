@@ -1,53 +1,53 @@
 ﻿@model EBookStore.Models.Page
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Page";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Delete</h1>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <!-- Card header -->
+        <div class="card-header text-white rounded-top-4" style="background: linear-gradient(90deg, #dc3545, #b02a37);">
+            <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Delete Page</h4>
+        </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Page</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Product)
-        </dt>
-        <dd class = "col-sm-10">
-            @(Model.Product != null? Model.Product.Name : "N/A")
-        </dd>
-        <dt class = "col-sm-2">
-            Page-Number
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PageNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Image)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.Image != null && Model.Image.Length > 0)
-            {
-                <img id="preview" src="@Model.Image" class="img-fluid" style="max-height:100px;" alt="No Image" />
-            }
-            else
-            {
-                <img id="preview" src="\Images\NoImage.jpg" class="img-fluid" style="max-height:100px;" alt="No Image" />
-            }
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="ID" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        <!-- Card body -->
+        <div class="card-body p-4">
+            <h5 class="mb-4">Are you sure you want to delete this page?</h5>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-3 fw-semibold">@Html.DisplayNameFor(model => model.Product)</dt>
+                <dd class="col-sm-9">@((Model.Product != null) ? Model.Product.Name : "N/A")</dd>
+
+                <dt class="col-sm-3 fw-semibold">Page Number</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.PageNumber)</dd>
+
+                <dt class="col-sm-3 fw-semibold">@Html.DisplayNameFor(model => model.Status)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Status)</dd>
+
+                <dt class="col-sm-3 fw-semibold">@Html.DisplayNameFor(model => model.Image)</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <img id="preview" src="@Model.Image" class="img-fluid" style="max-height:100px;" alt="Page Image" />
+                    }
+                    else
+                    {
+                        <img id="preview" src="~/Images/NoImage.jpg" class="img-fluid" style="max-height:100px;" alt="No Image" />
+                    }
+                </dd>
+            </dl>
+
+            <form asp-action="Delete" class="d-flex gap-3">
+                <input type="hidden" asp-for="ID" />
+                <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-trash-fill me-1"></i> Delete
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left-circle me-1"></i> Back
+                </a>
+            </form>
+        </div>
+    </div>
 </div>

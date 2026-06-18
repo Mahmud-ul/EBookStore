@@ -122,8 +122,129 @@ namespace EBookStore.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+<<<<<<< HEAD
         // Rest of your methods (ForgotPassword, ResetPassword, etc.) are fine
         // ... keep them as is ...
+=======
+        [HttpGet]
+        public IActionResult Signup()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Signup(User user)
+        {
+            user.UserTypeID = _db.UserTypes.Where(w => w.Name == "User").Select(s => s.ID).FirstOrDefault();
+            user.Status = true;
+            if (user.UserTypeID > 0)
+            {
+                if (user.Password != user.ConfirmPassword)
+                {
+                    TempData["Error"] = "Password and Confirm Password aren't Matching!!!";
+                    return View();
+                }
+
+                _db.Users.Add(user);
+                int save = _db.SaveChanges();
+
+                if (save > 0)
+                {
+                    TempData["Success"] = "User Signup Successful. Please login!";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            TempData["Error"] = "Failed to Save Information!!!";
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email) || !email.Contains('@'))
+                {
+                    ViewBag.Error = "This email is not valid!!!";
+                    return View();
+                }
+                bool existEmail = _db.Users.Any(a => a.Email == email);
+                if (!existEmail)
+                {
+                    ViewBag.Error = "This email is not registered with us. Please check and try again!!!";
+                    return View();
+                }
+
+                string code = CodeGenerator();
+                List<string> emailAddress = new List<string> { email };
+                string emailSubject = "Password reset Code";
+                string emailBody = "Your Password reset Code is: " + code;
+
+                bool sent = await SendMail(emailAddress, emailSubject, emailBody);
+                if (sent)
+                {
+                    TempData.Clear();
+                    TempData["Code"] = code;
+                    TempData["Email"] = email;
+                    return RedirectToAction("ResetPassword");
+                }
+                TempData["Error"] = "Code verification Failed. Please try again after some time!!!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            TempData["Code"] = TempData["Code"];
+            TempData["Email"] = TempData["Email"];
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ResetPassword(string code, string password, string confirmPassword)
+        {
+            string? email = (string?)TempData["Email"];
+            if ((string?)TempData["Code"] == code && password == confirmPassword)
+            {
+                //Reset Password                                
+                if (email != null)
+                {
+                    User? user = _db.Users.Where(w => w.Email == email).FirstOrDefault();
+                    if (user != null)
+                    {
+                        user.Password = password;
+
+                        _db.Users.Update(user);
+                        int save = _db.SaveChanges();
+
+                        if (save > 0)
+                        {
+                            TempData["Success"] = "Password Reset Successful!!!";
+                            return RedirectToAction("Index");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ViewBag.Error = "Wrong Code or Password and ConfirmPassword aren't Matching!!!";
+            }
+            TempData["Email"] = email;
+            TempData["Code"] = TempData["Code"];
+            return View();
+        }
+>>>>>>> 199720b95032cbd73f24c22ad0fcacea95219641
 
         public String CodeGenerator()
         {

@@ -22,6 +22,9 @@ namespace EBookStore.Controllers
         // GET: Order
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.Orders.Include(o => o.User);
             return View(await connectionString.ToListAsync());
         }
@@ -29,6 +32,9 @@ namespace EBookStore.Controllers
         // GET: Order/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -45,9 +51,40 @@ namespace EBookStore.Controllers
             return View(order);
         }
 
+        public async Task<IActionResult> StatusUpdate(int? id, string status)
+        {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
+            Order? order = await _context.Orders.FindAsync(id);
+
+            if(order == null)
+            {
+                TempData["Error"] = "Unable to find order. Please try again later!";
+                return RedirectToAction("Index");
+            }
+
+            order.Status = status;
+
+            _context.Update(order);
+
+            int save = await _context.SaveChangesAsync();
+
+            if(save>0)
+            {
+                TempData["Success"] = "Order status updated!";
+                return RedirectToAction("Details", "Order", new { id });
+            }
+            TempData["Error"] = "Something went wrong, unable to update";
+            return RedirectToAction("Index");
+        }
+
         // GET: Order/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["UserID"] = new SelectList(_context.Users, "ID", "Email");
             return View();
         }
@@ -59,6 +96,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(order);
@@ -72,6 +112,9 @@ namespace EBookStore.Controllers
         // GET: Order/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -93,6 +136,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,OrderDate,StatusDate,Status,UserID,TotalAmount,Name,Phone,City,Area,Address,PaymentMethod,DeliveryCharge")] Order order)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != order.ID)
             {
                 return NotFound();
@@ -125,6 +171,9 @@ namespace EBookStore.Controllers
         // GET: Order/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -146,6 +195,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
@@ -164,12 +216,6 @@ namespace EBookStore.Controllers
         [HttpGet]
         public IActionResult PlaceOrder()
         {
-            // Your order creation logic here
-
-            //Show the details including delivery charge and a payment button.
-            //on the payment, pay the amount via bikash, nagad etc. 
-            //If the payment success, Order placed and confirmed.
-            //cart list cleared.
 
             int? userID = HttpContext.Session.GetInt32("UserID");
             if (userID == null)
@@ -181,7 +227,13 @@ namespace EBookStore.Controllers
 
             IEnumerable<Cart> cart = _context.Carts.Where(w => w.UserID == userID).Include(i => i.Product).ToList();
 
-            return View(cart);
+            if(cart.Any())
+            {
+                return View(cart);
+            }
+            TempData["Error"] = "Cart has no product. Please add any product to place an order!";
+
+            return RedirectToAction("CartList", "Cart");            
         }
 
         [HttpPost]
@@ -268,7 +320,11 @@ namespace EBookStore.Controllers
 
             if (userID == null)
             {
+<<<<<<< HEAD
                 TempData["Error"] = "Please Login to view your order!";
+=======
+                TempData["Error"] = "Please Login to Place order!";
+>>>>>>> 199720b95032cbd73f24c22ad0fcacea95219641
 
                 return RedirectToAction("Index", "Home");
             }
@@ -278,6 +334,7 @@ namespace EBookStore.Controllers
             return View(orders);
         }
 
+<<<<<<< HEAD
         public async Task<IActionResult> OrderDetails(int id)
         {
             Order? order = _context.Orders.Where(w => w.ID == id).Include(i => i.OrderProducts!).ThenInclude(j=>j.Product).FirstOrDefault();
@@ -289,6 +346,26 @@ namespace EBookStore.Controllers
             }
 
             return View(order);
+=======
+        [HttpGet]
+        public async Task<IActionResult> OrderDetail(int id)
+        {
+            Order? order = await _context.Orders.Where(w => w.ID == id).FirstOrDefaultAsync();
+
+            if(order!= null)
+            {
+                IEnumerable<OrderProduct> products = await _context.OrderProducts.Where(w => w.OrderID == id).Include(i => i.Product).ToListAsync();
+
+                ViewBag.Order = order;
+                ViewBag.Products = products;
+
+                return View();
+            }
+
+            TempData["Error"] = "Order not Found. Please try again later!";
+
+            return RedirectToAction("OrderList", "Order");
+>>>>>>> 199720b95032cbd73f24c22ad0fcacea95219641
         }
     }
 }

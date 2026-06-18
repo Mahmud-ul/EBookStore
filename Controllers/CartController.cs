@@ -22,6 +22,9 @@ namespace EBookStore.Controllers
         // GET: Cart
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var carts = _context.Carts.Include(c => c.Product).Include(c => c.User);
             return View(await carts.ToListAsync());
         }
@@ -30,6 +33,9 @@ namespace EBookStore.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -51,6 +57,9 @@ namespace EBookStore.Controllers
         // GET: Cart/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["ProductID"] = new SelectList(_context.Products, "ID", "Name");
             ViewData["UserID"] = new SelectList(_context.Users, "ID", "Email");
             return View();
@@ -61,6 +70,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductID,UserID,Quantity")] Cart cart)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(cart);
@@ -75,6 +87,9 @@ namespace EBookStore.Controllers
         // GET: Cart/Edit?userID=5&productID=10
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id == null)
             {
                 return NotFound();
@@ -98,6 +113,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProductID,UserID,Quantity")] Cart cart)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != cart.ID)
             {
                 return NotFound();
@@ -139,7 +157,6 @@ namespace EBookStore.Controllers
             var carts = _context.Carts.Where(w=>w.UserID == HttpContext.Session.GetInt32("UserID")).Include(c => c.Product).Include(c => c.User);
             return View(await carts.ToListAsync());
         }
-
         [HttpPost]
         public IActionResult AddToCart(int id)
         {
@@ -148,7 +165,7 @@ namespace EBookStore.Controllers
             if (userID == null || userID == 0)
             {
                 // Return JSON response indicating login is required
-                return Json(new { success = false, message = "Please log in to add items to your cart." });
+                return Json(new { success = false, requiresLogin = true, message = "Please log in to add items to your cart." });
             }
 
             bool exist = _context.Carts.Where(w => w.UserID == userID && w.ProductID == id).Any();
@@ -167,8 +184,8 @@ namespace EBookStore.Controllers
 
             int totalCart = _context.Carts
                     .Where(w => w.UserID == userID)
-                    .Include(s => s.Product) // ensure Product is loaded
-                    .ToList() // switch to client-side evaluation
+                    .Include(s => s.Product)
+                    .ToList()
                     .Sum(s => ((s.Product?.Price ?? 0) - (s.Product?.Discount ?? 0)) * s.Quantity);
 
             HttpContext.Session.SetInt32("Cart", totalCart);
@@ -178,7 +195,7 @@ namespace EBookStore.Controllers
                 return Json(new { success = true, message = "Item added to cart!", totalCart });
             }
             else
-                return Json(new { message = "Failed to save" });
+                return Json(new { success = false, message = "Failed to save" });
         }
 
         [HttpPost]

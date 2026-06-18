@@ -1,12 +1,21 @@
-﻿@model IEnumerable<EBookStore.Models.UserType>
+﻿@using System.Linq
+@model IEnumerable<EBookStore.Models.UserType>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "User Types";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="container">
+    <!-- Page header with title and Create button -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3">
+        <h3 class="fw-bold mb-2 mb-md-0"><i class="bi bi-person-badge-fill me-2"></i> User Types</h3>
+        <a asp-action="Create" class="btn btn-success btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Create New
+        </a>
+    </div>
 
+<<<<<<< HEAD
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -38,6 +47,124 @@
                 <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
             </td>
         </tr>
+=======
+    <div class="card shadow-sm border-0 rounded-4">
+        <!-- Card subtitle -->
+        <div class="card-header bg-gradient-secondary rounded-top">
+            <small>All registered user types (Total: @(Model?.Count() ?? 0))</small>
+        </div>
+
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle" id="example">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>
+                                        <span class="badge @(item.Status ? "bg-success" : "bg-danger")">
+                                            @(item.Status ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-info text-white me-1" data-bs-toggle="tooltip" title="Details">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-primary text-white me-1" data-bs-toggle="tooltip" title="Edit">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Delete" onclick="return confirm('Are you sure you want to delete this user type?');">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-person-x text-muted display-4 mb-3"></i>
+                    <h5 class="text-muted">No user types found</h5>
+                    <a asp-action="Create" class="btn btn-success btn-sm mt-3">
+                        <i class="bi bi-plus-lg me-2"></i> Create First User Type
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.35rem 0.5rem;
+    }
+
+    .btn-group .btn {
+        padding: 0.35rem 0.65rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            $('#example').DataTable({
+                "order": [[0, "asc"]],
+                "pageLength": 25,
+                "language": {
+                    "search": "Search User Types:",
+                    "lengthMenu": "Show _MENU_ types per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ types",
+                    "infoEmpty": "No types available",
+                    "infoFiltered": "(filtered from _MAX_ total types)"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 2 }
+                ]
+            });
+        });
+    </script>
+>>>>>>> 199720b95032cbd73f24c22ad0fcacea95219641
 }
-    </tbody>
-</table>

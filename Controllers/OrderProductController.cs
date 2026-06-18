@@ -22,14 +22,20 @@ namespace EBookStore.Controllers
         // GET: OrderProduct
         public async Task<IActionResult> Index()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             var connectionString = _context.OrderProducts.Include(o => o.Order).Include(o => o.Product);
             return View(await connectionString.ToListAsync());
         }
 
         // GET: OrderProduct/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? orderID, int? productID)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
@@ -37,7 +43,7 @@ namespace EBookStore.Controllers
             var orderProduct = await _context.OrderProducts
                 .Include(o => o.Order)
                 .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
+                .FirstOrDefaultAsync(m => m.OrderID == orderID && m.ProductID == productID);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -49,6 +55,9 @@ namespace EBookStore.Controllers
         // GET: OrderProduct/Create
         public IActionResult Create()
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             ViewData["OrderID"] = new SelectList(_context.Orders, "ID", "ID");
             ViewData["ProductID"] = new SelectList(_context.Products, "ID", "Name");
             return View();
@@ -61,6 +70,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderID,ProductID,Quantity,Price")] OrderProduct orderProduct)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (ModelState.IsValid)
             {
                 _context.Add(orderProduct);
@@ -73,14 +85,17 @@ namespace EBookStore.Controllers
         }
 
         // GET: OrderProduct/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? orderID, int? productID)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
 
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
+            var orderProduct = await _context.OrderProducts.Where(w=>w.ProductID == productID && w.OrderID == orderID).FirstOrDefaultAsync();
             if (orderProduct == null)
             {
                 return NotFound();
@@ -97,6 +112,9 @@ namespace EBookStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrderID,ProductID,Quantity,Price")] OrderProduct orderProduct)
         {
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
             if (id != orderProduct.OrderID)
             {
                 return NotFound();
@@ -128,9 +146,12 @@ namespace EBookStore.Controllers
         }
 
         // GET: OrderProduct/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? orderID, int? productID)
         {
-            if (id == null)
+            if (HttpContext.Session.GetString("UserType") != "Admin" && HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
+            if (orderID == null || productID == null)
             {
                 return NotFound();
             }
@@ -138,7 +159,7 @@ namespace EBookStore.Controllers
             var orderProduct = await _context.OrderProducts
                 .Include(o => o.Order)
                 .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
+                .FirstOrDefaultAsync(m => m.OrderID == orderID && m.ProductID == productID);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -147,12 +168,12 @@ namespace EBookStore.Controllers
             return View(orderProduct);
         }
 
-        // POST: OrderProduct/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int? orderID, int? productID)
         {
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
+            if (HttpContext.Session.GetString("UserType") != "SuperAdmin")
+                return RedirectToAction("Index", "Home");
+
+            var orderProduct = await _context.OrderProducts.Where(w => w.ProductID == productID && w.OrderID == orderID).FirstOrDefaultAsync();
             if (orderProduct != null)
             {
                 _context.OrderProducts.Remove(orderProduct);
